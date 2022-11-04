@@ -9,39 +9,19 @@ namespace EBanking.Console.DataAccessLayer
     {
         public const string CONNECTION_STRING =
             @"Data Source=DESKTOP-A2R6AE6\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
-        public static async Task<Entity> CreateEntity(Entity entity)
+        public static async Task<Entity> CreateEntity(Entity entity, Connector connector)
         {
-            var connection = new SqlConnection(CONNECTION_STRING);
+            SqlCommand command = connector.GetCommand();
+            entity.SetInsertEntityCommand(command);
 
-            await connection.OpenAsync();
-            SqlTransaction transanction = (SqlTransaction)(await connection.BeginTransactionAsync());
-            try
-            {
-                SqlCommand command = connection.CreateCommand();
-                command.Transaction = transanction;
-                entity.SetInsertEntityCommand(command);
+            int? id = (int?)(await command.ExecuteScalarAsync());
 
-                int? id = (int?)(await command.ExecuteScalarAsync());
+            if (id.HasValue == false)
+                throw new Exception($"Error creating {entity.GetClassName()}.");
 
-                if (id.HasValue == false)
-                    throw new Exception($"Error creating {entity.GetClassName()}.");
-
-                await transanction.CommitAsync();
-                entity.SetIdentificator(id.Value);
-                return entity;
-            }
-            catch
-            {
-                await transanction.RollbackAsync();
-                throw;
-            }
-            finally
-            {
-                await connection.CloseAsync();
-            }
+            entity.SetIdentificator(id.Value);
+            return entity;
         }
-
         public static async Task<List<Entity>> GetAllEntities(Entity entity)
         {
             var entities = new List<Entity>();
@@ -119,8 +99,5 @@ namespace EBanking.Console.DataAccessLayer
 
             return entity;
         }
-
     }
-
-
 }

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Model
 {
@@ -38,15 +33,26 @@ namespace EBanking.Console.Model
             command.Parameters.AddWithValue("@name", this.Name);
             command.Parameters.AddWithValue("@code", this.CurrencyCode);
         }
-
         public override string ToString()
         {
-            return $"{Id} {Name} {CurrencyCode}";
+            return CurrencyCode;
         }
-
+        public override bool Equals(object? obj)
+        {
+            if (obj is Currency currency)
+            {
+                return currency.Id == this.Id;
+            }
+            else return false;
+        }
         public override void SetUpdateByIdCommand(SqlCommand command)
         {
             command.CommandText = $"UPDATE [dbo].[Currency] SET Name = '{Name}', Code = '{CurrencyCode}' WHERE Id = {Id}";
+        }
+
+        public override string SinglePrint()
+        {
+            return $"\nИд: {Id}\nИме валуте: {Name}\nКод валуте: {CurrencyCode}";
         }
     }
 }

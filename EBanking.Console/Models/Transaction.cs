@@ -78,7 +78,19 @@ namespace EBanking.Console.Models
         }
         public override void SetSelectByIdCommand(SqlCommand command)
         {
-            //OVOOOOOO
+            command.CommandText = "select t.*, fa.Balance as faBalance, fa.Status as faStatus, fa.Number as faNumber, " +
+                "fa.UserId as faUserId, fu.FirstName as fuFirstName, fu.LastName as fuLastName, fu.Email as fuEmail, fu.Password as fuPassword, " +
+                "fa.CurrencyId as faCurrencyId, fc.Name as fcName, fc.Code as fcCode, " +
+                "ta.Balance as taBalance, ta.Status as taStatus, ta.Number as taNumber, " +
+                "ta.UserId as taUserId, tu.FirstName as tuFirstName, tu.LastName as tuLastName, tu.Email as tuEmail, tu.Password as tuPassword, " +
+                "ta.CurrencyId as taCurrencyId, tc.Name as tcName, tc.Code as tcCode " +
+                "from [dbo].[Transaction] as t INNER JOIN [dbo].[Account] as fa ON (t.FromAccountId = fa.Id) " +
+                "INNER JOIN [dbo].[Account] as ta ON (t.ToAccountId = ta.Id) " +
+                "INNER JOIN [dbo].[User] as fu ON (fa.UserId = fu.Id) " +
+                "INNER JOIN [dbo].[Currency] as fc ON (fa.CurrencyId = fc.Id) " +
+                "INNER JOIN [dbo].[User] as tu ON (ta.UserId = tu.Id) " +
+                "INNER JOIN [dbo].[Currency] as tc ON (ta.CurrencyId = tc.Id) " +
+                "WHERE t.id = " + Id;
         }
         public override int GetIdentificator() => Id;
         public override void SetIdentificator(int id)
@@ -96,11 +108,15 @@ namespace EBanking.Console.Models
         }
         public override void SetUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE [dbo].[Transaction] SET Amount = '{Amount}', Date = '{Date}', FromAccountId = '{FromAccount.Id}', ToAccountId = '{ToAccount.Id}' WHERE Id = {Id}";
+            command.CommandText = $"UPDATE [dbo].[Transaction] SET Amount = {Amount}, Date = '{Date}', FromAccountId = {FromAccount.Id}, ToAccountId = {ToAccount.Id} WHERE Id = {Id}";
         }
         public override string ToString()
         {
-            return $"{Id} {Amount} {Date} {FromAccount} {ToAccount}";
+            return $"{Id}. Износ: {Amount}, Давалац: {FromAccount} - Прималац: {ToAccount}";
+        }
+        public override string SinglePrint()
+        {
+            return $"\nИД: {Id}\nИзнос: {Amount}\nДатум: {Date}\nДавалац: {FromAccount}\nПрималац: {ToAccount}";
         }
     }
 }

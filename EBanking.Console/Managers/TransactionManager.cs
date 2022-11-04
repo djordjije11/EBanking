@@ -1,4 +1,5 @@
-﻿using EBanking.Console.Models;
+﻿using EBanking.Console.DataAccessLayer;
+using EBanking.Console.Models;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Impl;
 using EBanking.Console.Validations.Interfaces;
@@ -21,8 +22,8 @@ namespace EBanking.Console.Managers
             Account fromAccount = await (new AccountManager(new AccountValidator()).FindEntityFromInput());
             System.Console.WriteLine("Унесите тражене податке за рачун примаоца.");
             Account toAccount = await (new AccountManager(new AccountValidator()).FindEntityFromInput());
-            System.Console.WriteLine("Унесите количину новца која је пренета.");
-            if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal amount)) throw new ValidationException("Количина новца мора бити број.");
+            System.Console.WriteLine("Унесите износ новца која је пренета.");
+            if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal amount) || amount <= 0) throw new ValidationException("Износ новца мора бити позитиван број.");
             System.Console.WriteLine("Унесите датум трансакције.");
             //UKOLIKO ZELIMO DA SE DATUM RACUNA KAO TRENUTNI
             //DateTime dateTime = DateTime.Now;
@@ -86,22 +87,34 @@ namespace EBanking.Console.Managers
             ValidateEntity(newTransaction);
             return newTransaction;
         }
-
+        public override async Task CreateEntityFromInput()
+        {
+            Transaction newTransaction = await ConstructEntityFromInput(null);
+            decimal fromBalance = newTransaction.FromAccount.Balance;
+            decimal toBalance = newTransaction.ToAccount.Balance;
+            fromBalance -= newTransaction.Amount;
+            toBalance += newTransaction.Amount;
+            Account fromAccount = newTransaction.FromAccount;
+            fromAccount.Balance = fromBalance;
+            Account toAccount = newTransaction.ToAccount;
+            toAccount.Balance = toBalance;
+            await SqlRepository.UpdateEntityById(fromAccount);
+            await SqlRepository.UpdateEntityById(toAccount);
+            Transaction transaction = (Transaction)(await SqlRepository.CreateEntity(newTransaction));
+            System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction}'. (притисните било који тастер за наставак)");
+        }
         protected override string GetClassNameForScreen()
         {
             return "трансакција";
         }
-
         protected override string[] GetColumnNames()
         {
-            return new string[] {"ИД", "Количина", "Датум", "Од корисника", "Ка кориснику"};
+            return new string[] {"ИД", "Износ", "Датум", "Од корисника", "Ка кориснику"};
         }
-
         protected override string GetNameForGetId()
         {
             return "трансакције";
         }
-
         protected override Transaction GetNewEntityInstance(int id = -1)
         {
             return new Transaction()
@@ -109,7 +122,6 @@ namespace EBanking.Console.Managers
                 Id = id
             };
         }
-
         protected override string GetPluralClassNameForScreen()
         {
             return "ТРАНСАКЦИЈЕ";

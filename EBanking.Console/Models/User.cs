@@ -47,12 +47,23 @@ namespace EBanking.Console.Model
 
         public override string ToString()
         {
-            return $"{this.Id} {this.FirstName} {this.LastName}";
+            return $"{FirstName} {LastName}";
         }
-
+        public override bool Equals(object? obj)
+        {
+            if (obj is User user)
+            {
+                return user.Id == this.Id;
+            } else return false;
+        }
         public override void SetUpdateByIdCommand(SqlCommand command)
         {
             command.CommandText = $"UPDATE [dbo].[User] SET FirstName = '{FirstName}', LastName = '{LastName}', Email = '{Email}', Password = '{Password}' WHERE Id = {Id}";
+        }
+
+        public override string SinglePrint()
+        {
+            return $"\nИД: {Id}\nИме: {FirstName}\nПрезиме: {LastName}\nЕмаил: {Email}";
         }
     }
 }

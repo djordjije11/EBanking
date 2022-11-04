@@ -30,5 +30,6 @@ namespace EBanking.Console.Model
             command.CommandText = $"delete from [dbo].[{GetClassName()}] where id={GetIdentificator()}";
         }
         public abstract void SetUpdateByIdCommand(SqlCommand command);
+        public abstract string SinglePrint();
     }
 }

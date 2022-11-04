@@ -55,7 +55,6 @@ while (true)
     catch (Exception ex)
     {
         Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
-        throw ex;
         Console.ReadKey();
     }
 }
@@ -128,7 +127,6 @@ async Task UserUseCases(EntityManager<User> userManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
-            throw ex;
             Console.ReadKey();
         }
     }
@@ -202,7 +200,6 @@ async Task CurrencyUseCases(EntityManager<Currency> currencyManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
-            throw ex;
             Console.ReadKey();
         }   
     }
@@ -276,7 +273,6 @@ async Task AccountUseCases(EntityManager<Account> accountManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
-            throw ex;
             Console.ReadKey();
         }
     }
@@ -350,7 +346,6 @@ async Task TransactionUseCases(EntityManager<Transaction> transactionManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
-            throw ex;
             Console.ReadKey();
         }
     }

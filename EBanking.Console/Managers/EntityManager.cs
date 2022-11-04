@@ -3,6 +3,7 @@ using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Model;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
+using System.Data.SqlClient;
 
 namespace EBanking.Console.Managers
 {
@@ -21,10 +22,7 @@ namespace EBanking.Console.Managers
         protected abstract T GetNewEntityInstance(int id = -1);
         protected void ValidateEntity(T entity)
         {
-            if (validator != null)
-            {
-                validator.Validate(entity);
-            }
+            if (validator != null) validator.Validate(entity);
         }
         protected int GetIdFromInput()
         {
@@ -38,34 +36,51 @@ namespace EBanking.Console.Managers
         public async Task<T> FindEntityFromInput()
         {
             int id = GetIdFromInput();
-            T? wantedEntity = (T?) (await SqlRepository.GetEntityById(GetNewEntityInstance(id)));
+            T? wantedEntity = (T?)(await SqlRepository.GetEntityById(GetNewEntityInstance(id)));
             if (wantedEntity == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
             return wantedEntity;
         }
-        public async Task CreateEntityFromInput()
+        public virtual async Task CreateEntityFromInput()
         {
             T newEntity = await ConstructEntityFromInput(null);
-            T entity = (T) (await SqlRepository.CreateEntity(newEntity));
-            System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{entity}'. (притисните било који тастер за наставак)");
+            Connector connector = new Connector();
+            try
+            {
+                await connector.StartConnection();
+                await connector.StartTransaction();
+                connector.StartCommand();
+                T entity = (T)(await SqlRepository.CreateEntity(newEntity, connector));
+                System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{entity.SinglePrint()}'. (притисните било који тастер за наставак)");
+                await connector.CommitTransaction();
+            }
+            catch
+            {
+                await connector.RollbackTransaction();
+                throw;
+            }
+            finally
+            {
+                await connector.EndConnection();
+            }
         }
         public async Task DeleteEntityFromInput()
         {
             int id = GetIdFromInput();
             T entity = (T) (await SqlRepository.DeleteEntity(GetNewEntityInstance(id)));
-            System.Console.WriteLine($"Обрисан {GetClassNameForScreen()} објекат: '{entity}'. (притисните било који тастер за наставак)");
+            System.Console.WriteLine($"Обрисан {GetClassNameForScreen()} објекат: '{entity.SinglePrint()}'. (притисните било који тастер за наставак)");
         }
         public async Task UpdateEntityFromInput()
         {
             T wantedEntity = await FindEntityFromInput();
-            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: {wantedEntity}.\n");
+            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: {wantedEntity.SinglePrint()}.\n");
             T newEntity = await ConstructEntityFromInput(wantedEntity.GetIdentificator());
             T updatedEntity = (T) (await SqlRepository.UpdateEntityById(newEntity));
-            System.Console.WriteLine($"Ажуриран {GetClassNameForScreen()}: '{updatedEntity}'. (притисните било који тастер за наставак)");
+            System.Console.WriteLine($"Ажуриран {GetClassNameForScreen()}: '{updatedEntity.SinglePrint()}'. (притисните било који тастер за наставак)");
         }
         public async Task GetEntityFromInput()
         {
             T wantedEntity = await FindEntityFromInput();
-            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: '{wantedEntity}'. (притисните било који тастер за наставак)");
+            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: '{wantedEntity.SinglePrint()}'. (притисните било који тастер за наставак)");
         }
         public async Task GetEntitiesFromInput()
         {

@@ -38,12 +38,14 @@ namespace EBanking.Console.Models
         }
         public override void SetSelectAllCommand(SqlCommand command)
         {
-            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
                 $"from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id)";
         }
         public override void SetSelectByIdCommand(SqlCommand command)
         {
-           //OVOOOOOO
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
+                 $"from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id) " +
+                 "where a.Id = " + Id;
         }
         public override int GetIdentificator()
         {
@@ -65,12 +67,15 @@ namespace EBanking.Console.Models
         }
         public override void SetUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE [dbo].[Account] SET Balance = '{Balance}', Status = '{Status}', Number = '{Number}', UserId = '{User.Id}', CurrencyId = '{Currency.Id}' WHERE Id = {Id}";
+            command.CommandText = $"UPDATE [dbo].[Account] SET Balance = {Balance}, Status = {(int)Status}, Number = '{Number}', UserId = {User.Id}, CurrencyId = {Currency.Id} WHERE Id = {Id}";
         }
         public override string ToString()
         {
-            return Number;
-            //return $"{Id} {Balance} {Status.ToString().ToLower()} {Number} \n {User.LastName} {Currency.CurrencyCode}";
+            return $"{Number}: {Balance}{Currency}, {User}";
+        }
+        public override string SinglePrint()
+        {
+            return $"\nИД: {Id}\nСтање: {Balance}\nСтатус рачуна: {Status.ToString().ToLower()}\nБрој рачуна: {Number}\nКорисник: {User}\nВалута: {Currency}";
         }
     }
 }
