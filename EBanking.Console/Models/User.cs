@@ -36,7 +36,6 @@ namespace EBanking.Console.Model
                 Password = reader.GetString("Password")
             };
         }
-
         public override void SetInsertEntityCommand(SqlCommand command)
         {
             command.CommandText = "insert into [dbo].[User](FirstName, LastName, Email, Password) output inserted.ID values (@firstname, @lastname, @email, @password)";

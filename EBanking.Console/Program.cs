@@ -1,14 +1,8 @@
-﻿using ConsoleTableExt;
-using EBanking.Console.ClientLayer;
-using EBanking.Console.Managers;
+﻿using EBanking.Console.Managers;
 using EBanking.Console.Model;
 using EBanking.Console.Models;
-using EBanking.Console.Validations;
-using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Impl;
-using System.Linq.Expressions;
 using System.Text;
-
 
 // Zbog cirilice
 Console.OutputEncoding = Encoding.Unicode;
@@ -37,7 +31,12 @@ while (true)
                 }
             case "2":
                 {
-                    //await AccountUseCases(new AccountManager());
+                    await AccountUseCases(new AccountManager(new AccountValidator()));
+                    break;
+                }
+            case "3":
+                {
+                    await TransactionUseCases(new TransactionManager(new TransactionValidator()));
                     break;
                 }
             case "4":
@@ -56,10 +55,10 @@ while (true)
     catch (Exception ex)
     {
         Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
+        throw ex;
         Console.ReadKey();
     }
 }
-
 void ShowMainMenu()
 {
     Console.Clear();
@@ -70,7 +69,6 @@ void ShowMainMenu()
     Console.WriteLine("0. Крај");
     Console.Write("Одаберите опцију: ");
 }
-
 async Task UserUseCases(EntityManager<User> userManager)
 {
     var goBackRequested = false;
@@ -90,37 +88,32 @@ async Task UserUseCases(EntityManager<User> userManager)
                     }
                 case "1":
                     {
-                        Validation<User> validation = await userManager.CreateEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await userManager.CreateEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        Validation<User> validation = await userManager.UpdateEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await userManager.UpdateEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
 
                 case "3":
                     {
-                        Validation<User> validation = await userManager.DeleteEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await userManager.DeleteEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        Validation<User> validation = await userManager.GetEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await userManager.GetEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        Validation<User> validation = await userManager.GetEntitiesFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await userManager.GetEntitiesFromInput();
                         Console.ReadKey();
                         break;
                     }
@@ -135,11 +128,11 @@ async Task UserUseCases(EntityManager<User> userManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
+            throw ex;
             Console.ReadKey();
         }
     }
 }
-
 void ShowUserMenu()
 {
     Console.Clear();
@@ -151,8 +144,7 @@ void ShowUserMenu()
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
-
-async Task CurrencyUseCases(CurrencyManager currencyManager)
+async Task CurrencyUseCases(EntityManager<Currency> currencyManager)
 {
     var goBackRequested = false;
     while (goBackRequested == false)
@@ -171,39 +163,31 @@ async Task CurrencyUseCases(CurrencyManager currencyManager)
                     }
                 case "1":
                     {
-                        /*
-                        Validation<Currency> validation = await currencyManager.CreateEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
-                        */
-                        await currencyManager.CreateEntity();
+                        await currencyManager.CreateEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        Validation<Currency> validation = await currencyManager.UpdateEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await currencyManager.UpdateEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "3":
                     {
-                        Validation<Currency> validation = await currencyManager.DeleteEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await currencyManager.DeleteEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        Validation<Currency> validation = await currencyManager.GetEntityFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await currencyManager.GetEntityFromInput();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        Validation<Currency> validation = await currencyManager.GetEntitiesFromInput();
-                        if (validation.IsValid == false) throw validation.Exception;
+                        await currencyManager.GetEntitiesFromInput();
                         Console.ReadKey();
                         break;
                     }
@@ -218,11 +202,11 @@ async Task CurrencyUseCases(CurrencyManager currencyManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
+            throw ex;
             Console.ReadKey();
         }   
     }
 }
-
 void ShowCurrencyMenu()
 {
     Console.Clear();
@@ -234,7 +218,6 @@ void ShowCurrencyMenu()
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
-
 async Task AccountUseCases(EntityManager<Account> accountManager)
 {
     var goBackRequested = false;
@@ -242,7 +225,7 @@ async Task AccountUseCases(EntityManager<Account> accountManager)
     {
         try
         {
-            ShowUserMenu();
+            ShowAccountMenu();
             var userOption = Console.ReadLine();
             Console.Clear();
             switch (userOption)
@@ -258,6 +241,30 @@ async Task AccountUseCases(EntityManager<Account> accountManager)
                         Console.ReadKey();
                         break;
                     }
+                case "2":
+                    {
+                        await accountManager.UpdateEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "3":
+                    {
+                        await accountManager.DeleteEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "4":
+                    {
+                        await accountManager.GetEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "5":
+                    {
+                        await accountManager.GetEntitiesFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
                 default:
                     {
                         Console.WriteLine("Непозната опција. Покушајте поново..(притисните било који тастер за наставак)");
@@ -269,7 +276,93 @@ async Task AccountUseCases(EntityManager<Account> accountManager)
         catch (Exception ex)
         {
             Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
+            throw ex;
             Console.ReadKey();
         }
+    }
+}
+void ShowAccountMenu()
+{
+    Console.Clear();
+    Console.WriteLine("1. Додај");
+    Console.WriteLine("2. Ажурирај");
+    Console.WriteLine("3. Обриши");
+    Console.WriteLine("4. Прикажи једног");
+    Console.WriteLine("5. Прикажи све");
+    Console.WriteLine("0. Назад");
+    Console.Write("Одаберите опцију: ");
+}
+async Task TransactionUseCases(EntityManager<Transaction> transactionManager)
+{
+    var goBackRequested = false;
+    while (goBackRequested == false)
+    {
+        try
+        {
+            ShowTransactionMenu();
+            var userOption = Console.ReadLine();
+            Console.Clear();
+            switch (userOption)
+            {
+                case "0":
+                    {
+                        goBackRequested = true;
+                        break;
+                    }
+                case "1":
+                    {
+                        await transactionManager.CreateEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "2":
+                    {
+                        await transactionManager.UpdateEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "3":
+                    {
+                        await transactionManager.DeleteEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "4":
+                    {
+                        await transactionManager.GetEntityFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                case "5":
+                    {
+                        await transactionManager.GetEntitiesFromInput();
+                        Console.ReadKey();
+                        break;
+                    }
+                default:
+                    {
+                        Console.WriteLine("Непозната опција. Покушајте поново..(притисните било који тастер за наставак)");
+                        Console.ReadKey();
+                        break;
+                    }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Грешка: {ex.Message} {Environment.NewLine} (притисните било који тастер за наставак)");
+            throw ex;
+            Console.ReadKey();
+        }
+    }
+    void ShowTransactionMenu()
+    {
+        Console.Clear();
+        Console.WriteLine("1. Додај");
+        Console.WriteLine("2. Ажурирај");
+        Console.WriteLine("3. Обриши");
+        Console.WriteLine("4. Прикажи једног");
+        Console.WriteLine("5. Прикажи све");
+        Console.WriteLine("0. Назад");
+        Console.Write("Одаберите опцију: ");
     }
 }

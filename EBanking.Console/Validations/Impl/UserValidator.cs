@@ -31,7 +31,6 @@ namespace EBanking.Console.Validations.Impl
             if (regex.IsMatch(name) == false)
                 throw new ValidationException($"{messageText} корисника мора бити написано ћириличним писмом и прво слово мора бити велико");
         }
-
         void ValidateEmail(string email)
         {
             var trimmedEmail = email.Trim();
@@ -50,7 +49,6 @@ namespace EBanking.Console.Validations.Impl
                 throw new ValidationException("Емаил адреса није валидна.");
             }
         }
-
         void ValidatePassword(string password)
         {
             var hasNumber = new Regex(@"[0-9]+");
@@ -61,6 +59,5 @@ namespace EBanking.Console.Validations.Impl
             if (!hasUpperChar.IsMatch(password)) throw new ValidationException("Шифра мора да садржи бар једно велико слово у себи.");
             if (!hasMinimum8Chars.IsMatch(password)) throw new ValidationException("Шифра мора да има најмање 8 знакова.");
         }
-
     }
 }

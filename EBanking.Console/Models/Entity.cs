@@ -17,7 +17,7 @@ namespace EBanking.Console.Model
         }
         public abstract void SetInsertEntityCommand(SqlCommand command);
         public abstract Entity GetEntity(SqlDataReader reader);
-        public void SetSelectByIdCommand(SqlCommand command)
+        public virtual void SetSelectByIdCommand(SqlCommand command)
         {
             command.CommandText = $"select * from [dbo].[{GetClassName()}] where id={GetIdentificator()}";
         }

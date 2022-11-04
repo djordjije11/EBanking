@@ -1,36 +1,45 @@
 ﻿using EBanking.Console.Model;
 using EBanking.Console.Models;
-using EBanking.Console.Validations;
 using EBanking.Console.Validations.Exceptions;
+using EBanking.Console.Validations.Impl;
 using EBanking.Console.Validations.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Managers
 {
-    internal class AccountManager
+    internal class AccountManager : EntityManager<Account>
     {
-
-        /*
-        public override async Task<Validation<Account>> ConstructEntityFromInput(int? id)
+        public AccountManager(IValidator<Account> validator) : base(validator)
         {
-            // SREDI ZA TASK<VALIDATION DA BUDE POVRATNA VREDNOST
-            throw new NotImplementedException();
-            
-            Validation validation = await (new UserManager(null).FindEntityFromInput());
-            if (validation.IsValid == false && validation.Exception != null) throw validation.Exception;
-            User wantedUser = (User)validation.Entity;
-            int currencyId = GetIdFromInput("валуте");
-            new UserManager(null);
-
+        }
+        protected override string GetNameForGetId()
+        {
+            return "рачуна";
+        }
+        protected override string GetClassNameForScreen()
+        {
+            return "рачун";
+        }
+        protected override string GetPluralClassNameForScreen()
+        {
+            return "рачуни";
+        }
+        protected override string[] GetColumnNames()
+        {
+            return new string[] { "ИД", "Стање", "Статус", "Број", "Корисник", "Валута" };
+        }
+        protected override Account GetNewEntityInstance(int id = -1)
+        {
+            return new Account() { Id = id };
+        }
+        public override async Task<Account> ConstructEntityFromInput(int? id)
+        {
+            User wantedUser = await (new UserManager(new UserValidator()).FindEntityFromInput());
+            Currency wantedCurrency = await (new CurrencyManager(new CurrencyValidator()).FindEntityFromInput());
             System.Console.WriteLine("Унесите стање рачуна:");
-            if (!Double.TryParse(System.Console.ReadLine() ?? "", out double balance)) throw new ValidationException("Стање на рачуну мора бити број.");
+            if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal balance)) throw new ValidationException("Стање на рачуну мора бити број.");
             System.Console.WriteLine("Одаберите статус рачуна:\n1. Активан 2. Неактиван");
             string statusOption = System.Console.ReadLine() ?? "";
-            while(statusOption != "1" || statusOption != "2")
+            while (!statusOption.Trim().Equals("1") && !statusOption.Trim().Equals("2"))
             {
                 System.Console.WriteLine("Непозната опција. Покушајте опет.");
                 System.Console.Clear();
@@ -40,48 +49,17 @@ namespace EBanking.Console.Managers
             Status status = (Status)Int32.Parse(statusOption);
             System.Console.WriteLine("Унесите број рачуна:");
             string accountNumber = System.Console.ReadLine() ?? "";
-
-            
-
             var newAccount = new Account()
             {
                 Balance = balance,
                 Status = status,
                 Number = accountNumber,
-                //User
-                //Currency
+                User = wantedUser,
+                Currency = wantedCurrency
             };
             if (id.HasValue) newAccount.SetIdentificator(id.Value);
             ValidateEntity(newAccount);
             return newAccount;
-            
-        }*/
-
-        /*
-        public override Task<Validation<Account>> DeleteEntityFromInput()
-        {
-            throw new NotImplementedException();
         }
-
-        public override Task<Validation<Account>> GetEntitiesFromInput()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<Validation<Account>> GetEntityFromInput()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<Validation<Account>> UpdateEntityFromInput()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<Validation<Account>> FindEntityFromInput()
-        {
-            throw new NotImplementedException();
-        }
-        */
     }
 }

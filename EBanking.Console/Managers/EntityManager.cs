@@ -1,5 +1,6 @@
-﻿using EBanking.Console.Model;
-using EBanking.Console.Validations;
+﻿using ConsoleTableExt;
+using EBanking.Console.DataAccessLayer;
+using EBanking.Console.Model;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
 
@@ -13,41 +14,70 @@ namespace EBanking.Console.Managers
         {
             this.validator = validator;
         }
-        
+        protected abstract string GetNameForGetId();
+        protected abstract string GetClassNameForScreen();
+        protected abstract string GetPluralClassNameForScreen();
+        protected abstract string[] GetColumnNames();
+        protected abstract T GetNewEntityInstance(int id = -1);
         protected void ValidateEntity(T entity)
         {
             if (validator != null)
             {
-                try
-                {
-                    validator.Validate(entity);
-                }
-                catch
-                {
-                    throw;
-                }
+                validator.Validate(entity);
             }
         }
-        protected int GetIdFromInput(string objectName)
+        protected int GetIdFromInput()
         {
-            System.Console.WriteLine($"Унесите ид {objectName}:");
+            System.Console.WriteLine($"Унесите ид {GetNameForGetId()}:");
             string input = System.Console.ReadLine() ?? "";
-            if (!Int32.TryParse(input, out int id)) throw new ValidationException($"Ид {objectName} мора бити број.");
-            if (id < 0) throw new ValidationException($"Ид {objectName} мора бити позитиван број.");
+            if (!Int32.TryParse(input, out int id)) throw new ValidationException($"Ид {GetNameForGetId()} мора бити број.");
+            if (id < 0) throw new ValidationException($"Ид {GetNameForGetId()} мора бити позитиван број.");
             return id;
         }
-
-        protected T GetEntityFromValidation(Validation<T> validation)
+        public abstract Task<T> ConstructEntityFromInput(int? id);
+        public async Task<T> FindEntityFromInput()
         {
-            return (validation.IsValid == true) ? validation.Entity : throw validation.Exception;
+            int id = GetIdFromInput();
+            T? wantedEntity = (T?) (await SqlRepository.GetEntityById(GetNewEntityInstance(id)));
+            if (wantedEntity == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
+            return wantedEntity;
         }
-
-        public abstract Task<Validation<T>> ConstructEntityFromInput(int? id);
-        public abstract Task<Validation<T>> FindEntityFromInput();
-        public abstract Task<Validation<T>> CreateEntityFromInput();
-        public abstract Task<Validation<T>> DeleteEntityFromInput();
-        public abstract Task<Validation<T>> UpdateEntityFromInput();
-        public abstract Task<Validation<T>> GetEntityFromInput();
-        public abstract Task<Validation<T>> GetEntitiesFromInput();
+        public async Task CreateEntityFromInput()
+        {
+            T newEntity = await ConstructEntityFromInput(null);
+            T entity = (T) (await SqlRepository.CreateEntity(newEntity));
+            System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{entity}'. (притисните било који тастер за наставак)");
+        }
+        public async Task DeleteEntityFromInput()
+        {
+            int id = GetIdFromInput();
+            T entity = (T) (await SqlRepository.DeleteEntity(GetNewEntityInstance(id)));
+            System.Console.WriteLine($"Обрисан {GetClassNameForScreen()} објекат: '{entity}'. (притисните било који тастер за наставак)");
+        }
+        public async Task UpdateEntityFromInput()
+        {
+            T wantedEntity = await FindEntityFromInput();
+            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: {wantedEntity}.\n");
+            T newEntity = await ConstructEntityFromInput(wantedEntity.GetIdentificator());
+            T updatedEntity = (T) (await SqlRepository.UpdateEntityById(newEntity));
+            System.Console.WriteLine($"Ажуриран {GetClassNameForScreen()}: '{updatedEntity}'. (притисните било који тастер за наставак)");
+        }
+        public async Task GetEntityFromInput()
+        {
+            T wantedEntity = await FindEntityFromInput();
+            System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: '{wantedEntity}'. (притисните било који тастер за наставак)");
+        }
+        public async Task GetEntitiesFromInput()
+        {
+            List<Entity> entities = await SqlRepository.GetAllEntities(GetNewEntityInstance());
+            List<T> specEntities = new List<T>();
+            foreach (Entity entity in entities) specEntities.Add((T)entity);
+            ConsoleTableBuilder
+                .From(specEntities)
+                .WithTitle(GetPluralClassNameForScreen().ToUpper() + " ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
+                .WithColumn(GetColumnNames())
+                .ExportAndWriteLine();
+            System.Console.WriteLine("Притисните било који тастер за наставак...");
+        }
     }
 }

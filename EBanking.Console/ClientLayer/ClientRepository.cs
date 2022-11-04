@@ -1,14 +1,10 @@
 ﻿using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Model;
 using EBanking.Console.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.ClientLayer
 {
+    //NEISKORISCENA KLASA
     internal class ClientRepository
     {
         public static async Task<User> CreateUser(User user)

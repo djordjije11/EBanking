@@ -1,18 +1,14 @@
 ﻿using EBanking.Console.Model;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Models
 {
     internal class Account : Entity
     {
         public int Id { get; set; }
-        public double Balance { get; set; }
+        public decimal Balance { get; set; }
         public Status Status { get; set; }
         public string Number { get; set; }
         public User User { get; set; }
@@ -22,7 +18,7 @@ namespace EBanking.Console.Models
             return new Account()
             {
                 Id = reader.GetInt32("Id"),
-                Balance = reader.GetDouble("Balance"),
+                Balance = reader.GetDecimal("Balance"),
                 Status = (Status)reader.GetInt32("Status"),
                 Number = reader.GetString("Number"),
                 User = new User() {
@@ -40,23 +36,23 @@ namespace EBanking.Console.Models
                 }
             };
         }
-
         public override void SetSelectAllCommand(SqlCommand command)
         {
             command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
                 $"from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id)";
         }
-
+        public override void SetSelectByIdCommand(SqlCommand command)
+        {
+           //OVOOOOOO
+        }
         public override int GetIdentificator()
         {
             return Id;
         }
-
         public override void SetIdentificator(int id)
         {
             Id = id;
         }
-
         public override void SetInsertEntityCommand(SqlCommand command)
         {
             command.CommandText = "insert into [dbo].[Account](Balance, Status, Number, UserId, CurrencyId)" +
@@ -67,10 +63,14 @@ namespace EBanking.Console.Models
             command.Parameters.AddWithValue("@userId", this.User.Id);
             command.Parameters.AddWithValue("@currencyId", this.Currency.Id);
         }
-
         public override void SetUpdateByIdCommand(SqlCommand command)
         {
             command.CommandText = $"UPDATE [dbo].[Account] SET Balance = '{Balance}', Status = '{Status}', Number = '{Number}', UserId = '{User.Id}', CurrencyId = '{Currency.Id}' WHERE Id = {Id}";
+        }
+        public override string ToString()
+        {
+            return Number;
+            //return $"{Id} {Balance} {Status.ToString().ToLower()} {Number} \n {User.LastName} {Currency.CurrencyCode}";
         }
     }
 }
