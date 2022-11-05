@@ -1,13 +1,7 @@
 ﻿using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Models;
 using EBanking.Console.Validations.Exceptions;
-using EBanking.Console.Validations.Impl;
 using EBanking.Console.Validations.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Managers
 {
@@ -19,15 +13,23 @@ namespace EBanking.Console.Managers
         public override async Task<Transaction> ConstructEntityFromInput(int? id)
         {
             System.Console.WriteLine("Унесите тражене податке за рачун даваоца.");
-            Account fromAccount = await (new AccountManager(new AccountValidator()).FindEntityFromInput());
+            int fromAccountId = new AccountManager(connector).GetIdFromInput();
             System.Console.WriteLine("Унесите тражене податке за рачун примаоца.");
-            Account toAccount = await (new AccountManager(new AccountValidator()).FindEntityFromInput());
+            int toAccountId = new AccountManager(connector).GetIdFromInput();
+            Account? fromAccount;
+            Account? toAccount;
+            fromAccount = (Account?)(await SqlRepository.GetEntityById(GetNewEntityInstance(fromAccountId), connector));
+            if (fromAccount == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
+            toAccount = (Account?)(await SqlRepository.GetEntityById(GetNewEntityInstance(toAccountId), connector));
+            if (toAccount == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
             System.Console.WriteLine("Унесите износ новца која је пренета.");
-            if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal amount) || amount <= 0) throw new ValidationException("Износ новца мора бити позитиван број.");
+            if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal amount) || amount <= 0)
+                throw new ValidationException("Износ новца мора бити позитиван број.");
             System.Console.WriteLine("Унесите датум трансакције.");
             //UKOLIKO ZELIMO DA SE DATUM RACUNA KAO TRENUTNI
-            //DateTime dateTime = DateTime.Now;
+            DateTime dateTime = DateTime.Now;
             //UKOLIKO ZELIMO DA SE DATUM UNOSI
+            /*
             DateTime dateTime;
             while (true)
             {
@@ -76,6 +78,7 @@ namespace EBanking.Console.Managers
                 dateTime = new DateTime(year, month, day, hour, minute, second);
                 break;
             }
+            */
             Transaction newTransaction = new Transaction()
             {
                 Amount = amount,
@@ -89,19 +92,34 @@ namespace EBanking.Console.Managers
         }
         public override async Task CreateEntityFromInput()
         {
-            Transaction newTransaction = await ConstructEntityFromInput(null);
-            decimal fromBalance = newTransaction.FromAccount.Balance;
-            decimal toBalance = newTransaction.ToAccount.Balance;
-            fromBalance -= newTransaction.Amount;
-            toBalance += newTransaction.Amount;
-            Account fromAccount = newTransaction.FromAccount;
-            fromAccount.Balance = fromBalance;
-            Account toAccount = newTransaction.ToAccount;
-            toAccount.Balance = toBalance;
-            await SqlRepository.UpdateEntityById(fromAccount);
-            await SqlRepository.UpdateEntityById(toAccount);
-            Transaction transaction = (Transaction)(await SqlRepository.CreateEntity(newTransaction));
-            System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction}'. (притисните било који тастер за наставак)");
+            try
+            {
+                await connector.StartConnection();
+                Transaction newTransaction = await ConstructEntityFromInput(null);
+                decimal fromBalance = newTransaction.FromAccount.Balance;
+                decimal toBalance = newTransaction.ToAccount.Balance;
+                fromBalance -= newTransaction.Amount;
+                toBalance += newTransaction.Amount;
+                Account fromAccount = newTransaction.FromAccount;
+                fromAccount.Balance = fromBalance;
+                Account toAccount = newTransaction.ToAccount;
+                toAccount.Balance = toBalance;
+                await connector.StartTransaction();
+                await SqlRepository.UpdateEntityById(fromAccount, connector);
+                await SqlRepository.UpdateEntityById(toAccount, connector);
+                Transaction transaction = (Transaction)(await SqlRepository.CreateEntity(newTransaction, connector));
+                await connector.CommitTransaction();
+                System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction}'. (притисните било који тастер за наставак)");
+            }
+            catch
+            {
+                await connector.RollbackTransaction();
+                throw;
+            }
+            finally
+            {
+                await connector.EndConnection();
+            }
         }
         protected override string GetClassNameForScreen()
         {

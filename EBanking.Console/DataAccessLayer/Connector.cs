@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.DataAccessLayer
 {
     public class Connector
     {
-        public const string CONNECTION_STRING =
+        private const string CONNECTION_STRING =
             @"Data Source=DESKTOP-A2R6AE6\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         SqlConnection connection;
         SqlTransaction? transaction;
@@ -29,20 +25,24 @@ namespace EBanking.Console.DataAccessLayer
         public void StartCommand()
         {
             command = connection.CreateCommand();
-            command.Transaction = transaction;
+            if(transaction != null)
+                command.Transaction = transaction;
         }
         public async Task CommitTransaction()
         {
             await transaction.CommitAsync();
+            transaction = null;
         }
         public async Task RollbackTransaction()
         {
             await transaction.RollbackAsync();
+            transaction = null;
         }
         public async Task EndConnection()
         {
             await connection.CloseAsync();
         }
+        public bool IsConnected() => connection.State == ConnectionState.Open;
         public SqlConnection GetConnection() => connection;
         public SqlTransaction GetTransaction() => transaction;
         public SqlCommand GetCommand() => command;

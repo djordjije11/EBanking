@@ -1,10 +1,13 @@
-﻿using EBanking.Console.Model;
+﻿using EBanking.Console.DataAccessLayer;
+using EBanking.Console.Model;
 using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Managers
 {
     internal class CurrencyManager : EntityManager<Currency>
     {
+        public CurrencyManager() { }
+        public CurrencyManager(Connector connector) : base(connector) { }
         public CurrencyManager(IValidator<Currency> validator) : base(validator)
         {
         }

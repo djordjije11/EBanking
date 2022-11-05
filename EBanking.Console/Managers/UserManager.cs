@@ -1,10 +1,13 @@
-﻿using EBanking.Console.Model;
+﻿using EBanking.Console.DataAccessLayer;
+using EBanking.Console.Model;
 using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Managers
 {
     internal class UserManager : EntityManager<User>
     {
+        public UserManager() { }
+        public UserManager(Connector connector) : base(connector) { }
         public UserManager(IValidator<User> validator) : base(validator)
         {
         }

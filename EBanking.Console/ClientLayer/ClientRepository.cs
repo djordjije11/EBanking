@@ -7,6 +7,7 @@ namespace EBanking.Console.ClientLayer
     //NEISKORISCENA KLASA
     internal class ClientRepository
     {
+        /*
         public static async Task<User> CreateUser(User user)
         {
             User createdUser = (User) (await SqlRepository.CreateEntity(user));
@@ -94,5 +95,6 @@ namespace EBanking.Console.ClientLayer
             Account createdAccount = (Account)(await SqlRepository.CreateEntity(account));
             return createdAccount;
         }
+        */
     }
 }

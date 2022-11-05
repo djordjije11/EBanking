@@ -1,4 +1,5 @@
-﻿using EBanking.Console.Model;
+﻿using EBanking.Console.DataAccessLayer;
+using EBanking.Console.Model;
 using EBanking.Console.Models;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Impl;
@@ -8,6 +9,8 @@ namespace EBanking.Console.Managers
 {
     internal class AccountManager : EntityManager<Account>
     {
+        public AccountManager() { }
+        public AccountManager(Connector connector) : base(connector) { }
         public AccountManager(IValidator<Account> validator) : base(validator)
         {
         }
@@ -33,8 +36,12 @@ namespace EBanking.Console.Managers
         }
         public override async Task<Account> ConstructEntityFromInput(int? id)
         {
-            User wantedUser = await (new UserManager(new UserValidator()).FindEntityFromInput());
-            Currency wantedCurrency = await (new CurrencyManager(new CurrencyValidator()).FindEntityFromInput());
+            int userId = new UserManager().GetIdFromInput();
+            User? wantedUser = (User?)(await SqlRepository.GetEntityById(GetNewEntityInstance(userId), connector));
+            if (wantedUser == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
+            int currencyId = new CurrencyManager().GetIdFromInput();
+            Currency? wantedCurrency = (Currency?)(await SqlRepository.GetEntityById(GetNewEntityInstance(currencyId), connector));
+            if (wantedCurrency == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
             System.Console.WriteLine("Унесите стање рачуна:");
             if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal balance)) throw new ValidationException("Стање на рачуну мора бити број.");
             System.Console.WriteLine("Одаберите статус рачуна:\n1. Активан 2. Неактиван");
@@ -43,7 +50,7 @@ namespace EBanking.Console.Managers
             {
                 System.Console.WriteLine("Непозната опција. Покушајте опет.");
                 System.Console.Clear();
-                System.Console.WriteLine("Одаберите статус рачуна:\n1. Активан 2. Неактиван");
+                System.Console.WriteLine($"Одаберите статус рачуна:\n{(int)Status.ACTIVE}. Активан {(int)Status.INACTIVE}. Неактиван");
                 statusOption = System.Console.ReadLine() ?? "";
             }
             Status status = (Status)Int32.Parse(statusOption);
