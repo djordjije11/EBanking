@@ -4,15 +4,15 @@ using EBanking.Console.Model;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
 
-namespace EBanking.Console.Managers
+namespace EBanking.Console.Brokers
 {
-    internal abstract class EntityManager<T> where T : Entity
+    internal abstract class EntityBroker<T> where T : Entity
     {
         protected IValidator<T>? validator;
         public Connector connector;
-        public EntityManager(Connector connector) { this.connector = connector; }
-        public EntityManager() { connector = new Connector(); }
-        public EntityManager(IValidator<T> validator) : this()
+        public EntityBroker(Connector connector) { this.connector = connector; }
+        public EntityBroker() { connector = new Connector(); }
+        public EntityBroker(IValidator<T> validator) : this()
         {
             this.validator = validator;
         }
@@ -86,7 +86,6 @@ namespace EBanking.Console.Managers
         }
         public async Task UpdateEntityFromInput()
         {
-            int id = GetIdFromInput();
             try
             {
                 await connector.StartConnection();

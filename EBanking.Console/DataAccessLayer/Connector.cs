@@ -30,12 +30,14 @@ namespace EBanking.Console.DataAccessLayer
         }
         public async Task CommitTransaction()
         {
-            await transaction.CommitAsync();
+            if(transaction != null)
+                await transaction.CommitAsync();
             transaction = null;
         }
         public async Task RollbackTransaction()
         {
-            await transaction.RollbackAsync();
+            if(transaction != null)
+                await transaction.RollbackAsync();
             transaction = null;
         }
         public async Task EndConnection()

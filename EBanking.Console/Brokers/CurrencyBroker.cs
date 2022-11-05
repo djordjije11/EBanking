@@ -2,13 +2,13 @@
 using EBanking.Console.Model;
 using EBanking.Console.Validations.Interfaces;
 
-namespace EBanking.Console.Managers
+namespace EBanking.Console.Brokers
 {
-    internal class CurrencyManager : EntityManager<Currency>
+    internal class CurrencyBroker : EntityBroker<Currency>
     {
-        public CurrencyManager() { }
-        public CurrencyManager(Connector connector) : base(connector) { }
-        public CurrencyManager(IValidator<Currency> validator) : base(validator)
+        public CurrencyBroker() { }
+        public CurrencyBroker(Connector connector) : base(connector) { }
+        public CurrencyBroker(IValidator<Currency> validator) : base(validator)
         {
         }
         protected override string GetNameForGetId()

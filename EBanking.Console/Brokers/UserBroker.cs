@@ -2,13 +2,13 @@
 using EBanking.Console.Model;
 using EBanking.Console.Validations.Interfaces;
 
-namespace EBanking.Console.Managers
+namespace EBanking.Console.Brokers
 {
-    internal class UserManager : EntityManager<User>
+    internal class UserBroker : EntityBroker<User>
     {
-        public UserManager() { }
-        public UserManager(Connector connector) : base(connector) { }
-        public UserManager(IValidator<User> validator) : base(validator)
+        public UserBroker() { }
+        public UserBroker(Connector connector) : base(connector) { }
+        public UserBroker(IValidator<User> validator) : base(validator)
         {
         }
         protected override string GetNameForGetId()

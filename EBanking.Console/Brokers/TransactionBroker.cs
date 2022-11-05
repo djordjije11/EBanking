@@ -3,33 +3,29 @@ using EBanking.Console.Models;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
 
-namespace EBanking.Console.Managers
+namespace EBanking.Console.Brokers
 {
-    internal class TransactionManager : EntityManager<Transaction>
+    internal class TransactionBroker : EntityBroker<Transaction>
     {
-        public TransactionManager(IValidator<Transaction> validator) : base(validator)
+        public TransactionBroker() { }
+        public TransactionBroker(Connector connector) : base(connector) { }
+        public TransactionBroker(IValidator<Transaction> validator) : base(validator)
         {
         }
         public override async Task<Transaction> ConstructEntityFromInput(int? id)
         {
             System.Console.WriteLine("Унесите тражене податке за рачун даваоца.");
-            int fromAccountId = new AccountManager(connector).GetIdFromInput();
+            Account fromAccount = await(new AccountBroker(connector).FindEntityFromInput());
             System.Console.WriteLine("Унесите тражене податке за рачун примаоца.");
-            int toAccountId = new AccountManager(connector).GetIdFromInput();
-            Account? fromAccount;
-            Account? toAccount;
-            fromAccount = (Account?)(await SqlRepository.GetEntityById(GetNewEntityInstance(fromAccountId), connector));
-            if (fromAccount == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
-            toAccount = (Account?)(await SqlRepository.GetEntityById(GetNewEntityInstance(toAccountId), connector));
-            if (toAccount == null) throw new ValidationException($"У бази не постоји {GetClassNameForScreen()} са унетим ид бројем.");
+            Account toAccount = await(new AccountBroker(connector).FindEntityFromInput());
             System.Console.WriteLine("Унесите износ новца која је пренета.");
             if (!Decimal.TryParse(System.Console.ReadLine() ?? "", out decimal amount) || amount <= 0)
                 throw new ValidationException("Износ новца мора бити позитиван број.");
-            System.Console.WriteLine("Унесите датум трансакције.");
             //UKOLIKO ZELIMO DA SE DATUM RACUNA KAO TRENUTNI
             DateTime dateTime = DateTime.Now;
             //UKOLIKO ZELIMO DA SE DATUM UNOSI
             /*
+            System.Console.WriteLine("Унесите датум трансакције.");
             DateTime dateTime;
             while (true)
             {
@@ -104,12 +100,13 @@ namespace EBanking.Console.Managers
                 fromAccount.Balance = fromBalance;
                 Account toAccount = newTransaction.ToAccount;
                 toAccount.Balance = toBalance;
+                if (fromBalance < 0) throw new ValidationException("Давалац нема довољно средстава на рачуну за ову трансакцију.");
                 await connector.StartTransaction();
                 await SqlRepository.UpdateEntityById(fromAccount, connector);
                 await SqlRepository.UpdateEntityById(toAccount, connector);
                 Transaction transaction = (Transaction)(await SqlRepository.CreateEntity(newTransaction, connector));
                 await connector.CommitTransaction();
-                System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction}'. (притисните било који тастер за наставак)");
+                System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction.SinglePrint()}'. (притисните било који тастер за наставак)");
             }
             catch
             {
