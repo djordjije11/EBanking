@@ -1,6 +1,5 @@
 ﻿using EBanking.Console.Brokers;
-using EBanking.Console.Model;
-using EBanking.Console.Models;
+using EBanking.Console.ClientLayer;
 using EBanking.Console.Validations.Impl;
 using System.Text;
 
@@ -8,6 +7,8 @@ using System.Text;
 Console.OutputEncoding = Encoding.Unicode;
 Console.InputEncoding = Encoding.Unicode;
 // Umesto VARCHAR smo u DDL-u za Ime i prezime stavili NVARCHAR da bi sql server mogao da cuva cirilicne karaktere
+
+Client client = new Client();
 
 while (true)
 {
@@ -26,22 +27,26 @@ while (true)
                 }
             case "1":
                 {
-                    await UserUseCases(new UserBroker(new UserValidator()));
+                    client.SetBroker(new UserBroker(new UserValidator()));
+                    await UserUseCases(client);
                     break;
                 }
             case "2":
                 {
-                    await AccountUseCases(new AccountBroker(new AccountValidator()));
+                    client.SetBroker(new AccountBroker(new AccountValidator()));
+                    await AccountUseCases(client);
                     break;
                 }
             case "3":
                 {
-                    await TransactionUseCases(new TransactionBroker(new TransactionValidator()));
+                    client.SetBroker(new TransactionBroker(new TransactionValidator()));
+                    await TransactionUseCases(client);
                     break;
                 }
             case "4":
                 {
-                    await CurrencyUseCases(new CurrencyBroker(new CurrencyValidator()));
+                    client.SetBroker(new CurrencyBroker(new CurrencyValidator()));
+                    await CurrencyUseCases(client);
                     break;
                 }
             default:
@@ -68,7 +73,7 @@ void ShowMainMenu()
     Console.WriteLine("0. Крај");
     Console.Write("Одаберите опцију: ");
 }
-async Task UserUseCases(EntityBroker<User> userBroker)
+async Task UserUseCases(Client client)
 {
     var goBackRequested = false;
     while (goBackRequested == false)
@@ -87,32 +92,32 @@ async Task UserUseCases(EntityBroker<User> userBroker)
                     }
                 case "1":
                     {
-                        await userBroker.CreateEntityFromInput();
+                        await client.Create();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        await userBroker.UpdateEntityFromInput();
+                        await client.Update();
                         Console.ReadKey();
                         break;
                     }
 
                 case "3":
                     {
-                        await userBroker.DeleteEntityFromInput();
+                        await client.Delete();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        await userBroker.GetEntityFromInput();
+                        await client.GetOne();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        await userBroker.GetEntitiesFromInput();
+                        await client.GetAll();
                         Console.ReadKey();
                         break;
                     }
@@ -142,7 +147,7 @@ void ShowUserMenu()
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
-async Task CurrencyUseCases(EntityBroker<Currency> currencyBroker)
+async Task CurrencyUseCases(Client client)
 {
     var goBackRequested = false;
     while (goBackRequested == false)
@@ -161,31 +166,31 @@ async Task CurrencyUseCases(EntityBroker<Currency> currencyBroker)
                     }
                 case "1":
                     {
-                        await currencyBroker.CreateEntityFromInput();
+                        await client.Create();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        await currencyBroker.UpdateEntityFromInput();
+                        await client.Update();
                         Console.ReadKey();
                         break;
                     }
                 case "3":
                     {
-                        await currencyBroker.DeleteEntityFromInput();
+                        await client.Delete();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        await currencyBroker.GetEntityFromInput();
+                        await client.GetOne();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        await currencyBroker.GetEntitiesFromInput();
+                        await client.GetAll();
                         Console.ReadKey();
                         break;
                     }
@@ -215,7 +220,7 @@ void ShowCurrencyMenu()
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
-async Task AccountUseCases(EntityBroker<Account> accountBroker)
+async Task AccountUseCases(Client client)
 {
     var goBackRequested = false;
     while (goBackRequested == false)
@@ -234,31 +239,31 @@ async Task AccountUseCases(EntityBroker<Account> accountBroker)
                     }
                 case "1":
                     {
-                        await accountBroker.CreateEntityFromInput();
+                        await client.Create();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        await accountBroker.UpdateEntityFromInput();
+                        await client.Update();
                         Console.ReadKey();
                         break;
                     }
                 case "3":
                     {
-                        await accountBroker.DeleteEntityFromInput();
+                        await client.Delete();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        await accountBroker.GetEntityFromInput();
+                        await client.GetOne();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        await accountBroker.GetEntitiesFromInput();
+                        await client.GetAll();
                         Console.ReadKey();
                         break;
                     }
@@ -288,7 +293,7 @@ void ShowAccountMenu()
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
-async Task TransactionUseCases(EntityBroker<Transaction> transactionBroker)
+async Task TransactionUseCases(Client client)
 {
     var goBackRequested = false;
     while (goBackRequested == false)
@@ -307,31 +312,31 @@ async Task TransactionUseCases(EntityBroker<Transaction> transactionBroker)
                     }
                 case "1":
                     {
-                        await transactionBroker.CreateEntityFromInput();
+                        await client.Create();
                         Console.ReadKey();
                         break;
                     }
                 case "2":
                     {
-                        await transactionBroker.UpdateEntityFromInput();
+                        await client.Update();
                         Console.ReadKey();
                         break;
                     }
                 case "3":
                     {
-                        await transactionBroker.DeleteEntityFromInput();
+                        await client.Delete();
                         Console.ReadKey();
                         break;
                     }
                 case "4":
                     {
-                        await transactionBroker.GetEntityFromInput();
+                        await client.GetOne();
                         Console.ReadKey();
                         break;
                     }
                 case "5":
                     {
-                        await transactionBroker.GetEntitiesFromInput();
+                        await client.GetAll();
                         Console.ReadKey();
                         break;
                     }

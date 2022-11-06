@@ -6,7 +6,7 @@ using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Brokers
 {
-    internal abstract class EntityBroker<T> where T : Entity
+    internal abstract class EntityBroker<T> : IBroker where T : Entity
     {
         protected IValidator<T>? validator;
         public Connector connector;

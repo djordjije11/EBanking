@@ -4,7 +4,7 @@ using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Brokers
 {
-    internal class CurrencyBroker : EntityBroker<Currency>
+    internal class CurrencyBroker : EntityBroker<Currency>, IBroker
     {
         public CurrencyBroker() { }
         public CurrencyBroker(Connector connector) : base(connector) { }

@@ -4,7 +4,7 @@ using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Brokers
 {
-    internal class UserBroker : EntityBroker<User>
+    internal class UserBroker : EntityBroker<User>, IBroker
     {
         public UserBroker() { }
         public UserBroker(Connector connector) : base(connector) { }
