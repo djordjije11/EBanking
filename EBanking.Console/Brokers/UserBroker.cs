@@ -2,16 +2,30 @@
 using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Model;
 using EBanking.Console.Models;
+using EBanking.Console.Repositories;
+using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Brokers
 {
     internal class UserBroker : EntityBroker<User>
     {
-        public UserBroker() { }
-        public UserBroker(Connector connector) : base(connector) { }
-        public UserBroker(IValidator<User> validator) : base(validator)
+        private UserRepository userRepository;
+        public UserBroker() : base(new UserRepository())
+        { 
+            userRepository = (UserRepository)repository;
+        }
+        public UserBroker(Connector connector) : base(new UserRepository(), connector)
         {
+            userRepository = (UserRepository)repository;
+        }
+        public UserBroker(IValidator<User> validator) : base(new UserRepository(), validator)
+        {
+            userRepository = (UserRepository)repository;
+        }
+        public UserBroker(Connector connector, IValidator<User> validator) : base(new UserRepository(), connector, validator)
+        {
+            userRepository = (UserRepository)repository;
         }
         protected override string GetNameForGetId()
         {
@@ -27,7 +41,7 @@ namespace EBanking.Console.Brokers
         }
         protected override string[] GetColumnNames()
         {
-            return new string[] { "ИД", "Име", "Презиме", "Мејл", "Шифра" };
+            return new string[] { "ИД", "Име", "Презиме", "Емаил адреса", "Шифра" };
         }
         protected override User GetNewEntityInstance(int id = -1)
         {
@@ -59,13 +73,38 @@ namespace EBanking.Console.Brokers
             try
             {
                 await connector.StartConnection();
-                int id = GetIdFromInput();
-                List<Account> accounts = await FindAccountsFromUser(id);
-                if(accounts.Count > 0)
-                {
-                    System.Console.WriteLine("NEMA BRISANJA");
-                    return;
-                }
+                User user = await FindEntityFromInput();
+                List<Account> accounts = await FindAccountsFromUser(user);
+                if (accounts.Count > 0) throw new ValidationException("Не можете обрисати кориснике који имају рачуне. (притисните било који тастер за наставак)");
+                await connector.StartTransaction();
+                User deletedUser = (User)(await repository.DeleteEntity(user, connector));
+                await connector.CommitTransaction();
+                System.Console.WriteLine($"Обрисан {GetClassNameForScreen()} објекат: '{deletedUser.SinglePrint()}'. (притисните било који тастер за наставак)");
+            }
+            catch
+            {
+                await connector.RollbackTransaction();
+                throw;
+            }
+            finally
+            {
+                await connector.EndConnection();
+            }
+        }
+        public async Task<List<Account>> FindAccountsFromUser(User user)
+        {
+            Account account = new() { User = user };
+            return await userRepository.GetAccountsByUser(account, connector);
+        }
+        public async Task GetAccountsFromUserFromInput()
+        {
+            List<Account> accounts;
+            try
+            {
+                await connector.StartConnection();
+                User user = await FindEntityFromInput();
+                System.Console.WriteLine($"Тражени {GetClassNameForScreen()}: '{user.SinglePrint()}'. (притисните било који тастер за наставак)");
+                accounts = await FindAccountsFromUser(user);
             }
             catch
             {
@@ -75,24 +114,7 @@ namespace EBanking.Console.Brokers
             {
                 await connector.EndConnection();
             }
-        }
-        public async Task<List<Account>> FindAccountsFromUser(int userId)
-        {
-            Account account = new() { User = new User() { Id = userId } };
-            List<Entity> entities = await SqlRepository.GetAllEntitiesByOtherEntity(account, connector);
-            List<Account> accounts = new();
-            foreach (Entity entity in entities) accounts.Add((Account)entity);
-            return accounts;
-
-        }
-        public async Task GetAccountsFromUser(List<Account> accounts)
-        {
-            ConsoleTableBuilder
-                        .From(accounts)
-                        .WithTitle(GetPluralClassNameForScreen().ToUpper() + " ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
-                        .WithColumn(GetColumnNames())
-                        .ExportAndWriteLine();
-            System.Console.WriteLine("Притисните било који тастер за наставак...");
+            new AccountBroker().WriteEntitiesTable(accounts);
         }
     }
 }

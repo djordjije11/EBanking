@@ -1,12 +1,7 @@
 ﻿using EBanking.Console.Model;
 using EBanking.Console.Validations.Interfaces;
 using EBanking.Console.Validations.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Validations.Impl
 {

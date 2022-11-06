@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EBanking.Console.Validations.Interfaces
 {
-    public interface IValidator<T> where T : Entity
+    public interface IValidator<T> where T : IEntity
     {
         void Validate(T entity);
     }

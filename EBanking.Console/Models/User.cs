@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EBanking.Console.Model
 {
-    public class User : Entity
+    public class User : IEntity
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-
-        public override int GetIdentificator()
+        public override string ToString()
         {
-            return Id;
+            return $"{FirstName} {LastName}";
         }
-
-        public override void SetIdentificator(int id)
+        public int GetIdentificator() { return Id; }
+        public void SetIdentificator(int id) { Id = id; }
+        public string GetTableName() { return "[dbo].[User]"; }
+        public string SinglePrint()
         {
-            this.Id = id;
+            return $"\nИД: {Id}\nИме: {FirstName}\nПрезиме: {LastName}\nЕмаил: {Email}";
         }
-        public override Entity GetEntity(SqlDataReader reader)
+        public IEntity GetEntityFromReader(SqlDataReader reader)
         {
             return new User()
             {
@@ -36,39 +33,29 @@ namespace EBanking.Console.Model
                 Password = reader.GetString("Password")
             };
         }
-        public override void SetInsertEntityCommand(SqlCommand command)
+        public void SetInsertCommand(SqlCommand command)
         {
-            command.CommandText = "insert into [dbo].[User](FirstName, LastName, Email, Password) output inserted.ID values (@firstname, @lastname, @email, @password)";
-            command.Parameters.AddWithValue("@firstname", this.FirstName);
-            command.Parameters.AddWithValue("@lastname", this.LastName);
-            command.Parameters.AddWithValue("@email", this.Email);
-            command.Parameters.AddWithValue("@password", this.Password);
+            command.CommandText = $"insert into {GetTableName()}(FirstName, LastName, Email, Password) output inserted.ID values (@firstname, @lastname, @email, @password)";
+            command.Parameters.AddWithValue("@firstname", FirstName);
+            command.Parameters.AddWithValue("@lastname", LastName);
+            command.Parameters.AddWithValue("@email", Email);
+            command.Parameters.AddWithValue("@password", Password);
         }
-
-        public override string ToString()
+        public void SetUpdateByIdCommand(SqlCommand command)
         {
-            return $"{FirstName} {LastName}";
+            command.CommandText = $"UPDATE {GetTableName()} SET FirstName = '{FirstName}', LastName = '{LastName}', Email = '{Email}', Password = '{Password}' WHERE Id = {Id}";
         }
-        public override bool Equals(object? obj)
+        public void SetDeleteByIdCommand(SqlCommand command)
         {
-            if (obj is User user)
-            {
-                return user.Id == this.Id;
-            } else return false;
+            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Id}";
         }
-        public override void SetUpdateByIdCommand(SqlCommand command)
+        public void SetSelectByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE [dbo].[User] SET FirstName = '{FirstName}', LastName = '{LastName}', Email = '{Email}', Password = '{Password}' WHERE Id = {Id}";
+            command.CommandText = $"SELECT * FROM {GetTableName()} WHERE id={Id}";
         }
-
-        public override string SinglePrint()
+        public void SetSelectAllCommand(SqlCommand command)
         {
-            return $"\nИД: {Id}\nИме: {FirstName}\nПрезиме: {LastName}\nЕмаил: {Email}";
-        }
-
-        public override void SetSelectAllWhereCommand(SqlCommand command)
-        {
-            throw new NotImplementedException();
+            command.CommandText = $"SELECT * FROM {GetTableName()}";
         }
     }
 }

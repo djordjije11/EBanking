@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EBanking.Console.Models
 {
-    internal class Account : Entity
+    internal class Account : IEntity
     {
         public int Id { get; set; }
         public decimal Balance { get; set; }
@@ -13,7 +13,18 @@ namespace EBanking.Console.Models
         public string Number { get; set; }
         public User User { get; set; }
         public Currency Currency { get; set; }
-        public override Entity GetEntity(SqlDataReader reader)
+        public override string ToString()
+        {
+            return $"{Number}: {Balance}{Currency}, {User}";
+        }
+        public int GetIdentificator() { return Id; }
+        public void SetIdentificator(int id) { Id = id; }
+        public string GetTableName() { return "[dbo].[Account]"; }
+        public string SinglePrint()
+        {
+            return $"\nИД: {Id}\nСтање: {Balance}\nСтатус рачуна: {Status.ToString().ToLower()}\nБрој рачуна: {Number}\nКорисник: {User}\nВалута: {Currency}";
+        }
+        public IEntity GetEntityFromReader(SqlDataReader reader)
         {
             return new Account()
             {
@@ -36,52 +47,39 @@ namespace EBanking.Console.Models
                 }
             };
         }
-        public override void SetSelectAllCommand(SqlCommand command)
-        {
-            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
-                $"from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id)";
-        }
-        public override void SetSelectByIdCommand(SqlCommand command)
-        {
-            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
-                 $"from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id) " +
-                 "where a.Id = " + Id;
-        }
-        public override int GetIdentificator()
-        {
-            return Id;
-        }
-        public override void SetIdentificator(int id)
-        {
-            Id = id;
-        }
-        public override void SetInsertEntityCommand(SqlCommand command)
+        public void SetInsertCommand(SqlCommand command)
         {
             command.CommandText = "insert into [dbo].[Account](Balance, Status, Number, UserId, CurrencyId)" +
                 " output inserted.ID values (@balance, @status, @number, @userId, @currencyId)";
-            command.Parameters.AddWithValue("@balance", this.Balance);
-            command.Parameters.AddWithValue("@status", ((int)this.Status));
-            command.Parameters.AddWithValue("@number", this.Number);
-            command.Parameters.AddWithValue("@userId", this.User.Id);
-            command.Parameters.AddWithValue("@currencyId", this.Currency.Id);
+            command.Parameters.AddWithValue("@balance", Balance);
+            command.Parameters.AddWithValue("@status", ((int)Status));
+            command.Parameters.AddWithValue("@number", Number);
+            command.Parameters.AddWithValue("@userId", User.Id);
+            command.Parameters.AddWithValue("@currencyId", Currency.Id);
         }
-        public override void SetUpdateByIdCommand(SqlCommand command)
+        public void SetUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE [dbo].[Account] SET Balance = {Balance}, Status = {(int)Status}, Number = '{Number}', UserId = {User.Id}, CurrencyId = {Currency.Id} WHERE Id = {Id}";
+            command.CommandText = $"UPDATE {GetTableName()} SET Balance = {Balance}, Status = {(int)Status}, Number = '{Number}', UserId = {User.Id}, CurrencyId = {Currency.Id} WHERE Id = {Id}";
         }
-        public override string ToString()
+        public void SetDeleteByIdCommand(SqlCommand command)
         {
-            return $"{Number}: {Balance}{Currency}, {User}";
+            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Id}";
         }
-        public override string SinglePrint()
+        public void SetSelectByIdCommand(SqlCommand command)
         {
-            return $"\nИД: {Id}\nСтање: {Balance}\nСтатус рачуна: {Status.ToString().ToLower()}\nБрој рачуна: {Number}\nКорисник: {User}\nВалута: {Currency}";
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
+                 $"from {GetTableName()} as a INNER JOIN {new User().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new Currency().GetTableName()} as c ON (a.CurrencyId = c.Id) " +
+                 "where a.Id = " + Id;
         }
-
-        public override void SetSelectAllWhereCommand(SqlCommand command)
+        public void SetSelectAllCommand(SqlCommand command)
+        {
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
+                $"from {GetTableName()} as a INNER JOIN {new User().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new Currency().GetTableName()} as c ON (a.CurrencyId = c.Id)";
+        }
+        public void SetSelectAllByUserId(SqlCommand command)
         {
             command.CommandText = "select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
-                "from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id) WHERE u.Id = " + User.Id;
+                $"from {GetTableName()} as a INNER JOIN {new User().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new Currency().GetTableName()} as c ON (a.CurrencyId = c.Id) WHERE u.Id = " + User.Id;
         }
     }
 }

@@ -35,5 +35,19 @@ namespace EBanking.Console.ClientLayer
             if (broker == null) return;
             await broker.GetEntitiesFromInput();
         }
+        public async Task GetAllAccountsByUser()
+        {
+            if(broker != null && broker is UserBroker userBroker)
+            {
+                await userBroker.GetAccountsFromUserFromInput();
+            }
+        }
+        public async Task GetAllTransactionsByAccount()
+        {
+            if(broker != null && broker is AccountBroker accountBroker)
+            {
+                await accountBroker.GetTransactionsFromAccountFromInput();
+            }
+        }
     }
 }

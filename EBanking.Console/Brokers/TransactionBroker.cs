@@ -1,5 +1,6 @@
 ﻿using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Models;
+using EBanking.Console.Repositories;
 using EBanking.Console.Validations.Exceptions;
 using EBanking.Console.Validations.Interfaces;
 
@@ -7,10 +8,45 @@ namespace EBanking.Console.Brokers
 {
     internal class TransactionBroker : EntityBroker<Transaction>
     {
-        public TransactionBroker() { }
-        public TransactionBroker(Connector connector) : base(connector) { }
-        public TransactionBroker(IValidator<Transaction> validator) : base(validator)
+        private TransactionRepository transactionRepository;
+        public TransactionBroker() : base(new TransactionRepository())
         {
+            transactionRepository = (TransactionRepository)repository;
+        }
+        public TransactionBroker(Connector connector) : base(new TransactionRepository(), connector)
+        {
+            transactionRepository = (TransactionRepository)repository;
+        }
+        public TransactionBroker(IValidator<Transaction> validator) : base(new TransactionRepository(), validator)
+        {
+            transactionRepository = (TransactionRepository)repository;
+        }
+        public TransactionBroker(Connector connector, IValidator<Transaction> validator) : base(new TransactionRepository(), connector, validator)
+        {
+            transactionRepository = (TransactionRepository)repository;
+        }
+        protected override string GetClassNameForScreen()
+        {
+            return "трансакција";
+        }
+        protected override string[] GetColumnNames()
+        {
+            return new string[] { "ИД", "Износ", "Датум", "Од корисника", "Ка кориснику" };
+        }
+        protected override string GetNameForGetId()
+        {
+            return "трансакције";
+        }
+        protected override string GetPluralClassNameForScreen()
+        {
+            return "трансакције";
+        }
+        protected override Transaction GetNewEntityInstance(int id = -1)
+        {
+            return new Transaction()
+            {
+                Id = id
+            };
         }
         public override async Task<Transaction> ConstructEntityFromInput(int? id)
         {
@@ -102,9 +138,9 @@ namespace EBanking.Console.Brokers
                 toAccount.Balance = toBalance;
                 if (fromBalance < 0) throw new ValidationException("Давалац нема довољно средстава на рачуну за ову трансакцију.");
                 await connector.StartTransaction();
-                await SqlRepository.UpdateEntityById(fromAccount, connector);
-                await SqlRepository.UpdateEntityById(toAccount, connector);
-                Transaction transaction = (Transaction)(await SqlRepository.CreateEntity(newTransaction, connector));
+                await repository.UpdateEntityById(fromAccount, connector);
+                await repository.UpdateEntityById(toAccount, connector);
+                Transaction transaction = (Transaction)(await repository.CreateEntity(newTransaction, connector));
                 await connector.CommitTransaction();
                 System.Console.WriteLine($"Додат нови {GetClassNameForScreen()} објекат: '{transaction.SinglePrint()}'. (притисните било који тастер за наставак)");
             }
@@ -117,29 +153,6 @@ namespace EBanking.Console.Brokers
             {
                 await connector.EndConnection();
             }
-        }
-        protected override string GetClassNameForScreen()
-        {
-            return "трансакција";
-        }
-        protected override string[] GetColumnNames()
-        {
-            return new string[] {"ИД", "Износ", "Датум", "Од корисника", "Ка кориснику"};
-        }
-        protected override string GetNameForGetId()
-        {
-            return "трансакције";
-        }
-        protected override Transaction GetNewEntityInstance(int id = -1)
-        {
-            return new Transaction()
-            {
-                Id = id
-            };
-        }
-        protected override string GetPluralClassNameForScreen()
-        {
-            return "ТРАНСАКЦИЈЕ";
         }
     }
 }

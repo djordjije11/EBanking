@@ -121,6 +121,12 @@ async Task UserUseCases(Client client)
                         Console.ReadKey();
                         break;
                     }
+                case "6":
+                    {
+                        await client.GetAllAccountsByUser();
+                        Console.ReadKey();
+                        break;
+                    }
                 default:
                     {
                         Console.WriteLine("Непозната опција. Покушајте поново..(притисните било који тастер за наставак)");
@@ -144,6 +150,7 @@ void ShowUserMenu()
     Console.WriteLine("3. Обриши");
     Console.WriteLine("4. Прикажи једног");
     Console.WriteLine("5. Прикажи све");
+    Console.WriteLine("6. Прикажи све рачуне корисника");
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
@@ -267,6 +274,12 @@ async Task AccountUseCases(Client client)
                         Console.ReadKey();
                         break;
                     }
+                case "6":
+                    {
+                        await client.GetAllTransactionsByAccount();
+                        Console.ReadKey();
+                        break;
+                    }
                 default:
                     {
                         Console.WriteLine("Непозната опција. Покушајте поново..(притисните било који тастер за наставак)");
@@ -290,6 +303,7 @@ void ShowAccountMenu()
     Console.WriteLine("3. Обриши");
     Console.WriteLine("4. Прикажи једног");
     Console.WriteLine("5. Прикажи све");
+    Console.WriteLine("6. Прикажи све трансакције рачуна");
     Console.WriteLine("0. Назад");
     Console.Write("Одаберите опцију: ");
 }
