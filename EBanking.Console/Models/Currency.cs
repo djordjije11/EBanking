@@ -54,5 +54,10 @@ namespace EBanking.Console.Model
         {
             return $"\nИд: {Id}\nИме валуте: {Name}\nКод валуте: {CurrencyCode}";
         }
+
+        public override void SetSelectAllWhereCommand(SqlCommand command)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

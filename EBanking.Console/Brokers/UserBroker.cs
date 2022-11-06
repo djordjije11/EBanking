@@ -1,10 +1,12 @@
-﻿using EBanking.Console.DataAccessLayer;
+﻿using ConsoleTableExt;
+using EBanking.Console.DataAccessLayer;
 using EBanking.Console.Model;
+using EBanking.Console.Models;
 using EBanking.Console.Validations.Interfaces;
 
 namespace EBanking.Console.Brokers
 {
-    internal class UserBroker : EntityBroker<User>, IBroker
+    internal class UserBroker : EntityBroker<User>
     {
         public UserBroker() { }
         public UserBroker(Connector connector) : base(connector) { }
@@ -51,6 +53,46 @@ namespace EBanking.Console.Brokers
             if (id.HasValue) newUser.SetIdentificator(id.Value);
             ValidateEntity(newUser);
             return newUser;
+        }
+        public override async Task DeleteEntityFromInput()
+        {
+            try
+            {
+                await connector.StartConnection();
+                int id = GetIdFromInput();
+                List<Account> accounts = await FindAccountsFromUser(id);
+                if(accounts.Count > 0)
+                {
+                    System.Console.WriteLine("NEMA BRISANJA");
+                    return;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                await connector.EndConnection();
+            }
+        }
+        public async Task<List<Account>> FindAccountsFromUser(int userId)
+        {
+            Account account = new() { User = new User() { Id = userId } };
+            List<Entity> entities = await SqlRepository.GetAllEntitiesByOtherEntity(account, connector);
+            List<Account> accounts = new();
+            foreach (Entity entity in entities) accounts.Add((Account)entity);
+            return accounts;
+
+        }
+        public async Task GetAccountsFromUser(List<Account> accounts)
+        {
+            ConsoleTableBuilder
+                        .From(accounts)
+                        .WithTitle(GetPluralClassNameForScreen().ToUpper() + " ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
+                        .WithColumn(GetColumnNames())
+                        .ExportAndWriteLine();
+            System.Console.WriteLine("Притисните било који тастер за наставак...");
         }
     }
 }

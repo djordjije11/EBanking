@@ -118,5 +118,10 @@ namespace EBanking.Console.Models
         {
             return $"\nИД: {Id}\nИзнос: {Amount}\nДатум: {Date}\nДавалац: {FromAccount}\nПрималац: {ToAccount}";
         }
+
+        public override void SetSelectAllWhereCommand(SqlCommand command)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

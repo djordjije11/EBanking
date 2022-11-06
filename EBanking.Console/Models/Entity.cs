@@ -31,5 +31,6 @@ namespace EBanking.Console.Model
         }
         public abstract void SetUpdateByIdCommand(SqlCommand command);
         public abstract string SinglePrint();
+        public abstract void SetSelectAllWhereCommand(SqlCommand command);
     }
 }

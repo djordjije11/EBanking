@@ -77,5 +77,11 @@ namespace EBanking.Console.Models
         {
             return $"\nИД: {Id}\nСтање: {Balance}\nСтатус рачуна: {Status.ToString().ToLower()}\nБрој рачуна: {Number}\nКорисник: {User}\nВалута: {Currency}";
         }
+
+        public override void SetSelectAllWhereCommand(SqlCommand command)
+        {
+            command.CommandText = "select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
+                "from [dbo].[Account] as a INNER JOIN [dbo].[User] as u ON (a.UserId = u.Id) INNER JOIN [dbo].[Currency] as c ON (a.CurrencyId = c.Id) WHERE u.Id = " + User.Id;
+        }
     }
 }

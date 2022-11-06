@@ -65,5 +65,10 @@ namespace EBanking.Console.Model
         {
             return $"\nИД: {Id}\nИме: {FirstName}\nПрезиме: {LastName}\nЕмаил: {Email}";
         }
+
+        public override void SetSelectAllWhereCommand(SqlCommand command)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

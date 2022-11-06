@@ -68,5 +68,19 @@ namespace EBanking.Console.DataAccessLayer
                 throw new Exception($"{entity.GetClassName()} does not exist.");
             return entity;
         }
+        public static async Task<List<Entity>> GetAllEntitiesByOtherEntity(Entity entity, Connector connector)
+        {
+            var entities = new List<Entity>();
+            connector.StartCommand();
+            var command = connector.GetCommand();
+            entity.SetSelectAllWhereCommand(command);
+            var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                entities.Add(entity.GetEntity(reader));
+            }
+            await reader.CloseAsync();
+            return entities;
+        }
     }
 }

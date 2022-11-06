@@ -63,7 +63,7 @@ namespace EBanking.Console.Brokers
                 await connector.EndConnection();
             }
         }
-        public async Task DeleteEntityFromInput()
+        public virtual async Task DeleteEntityFromInput()
         {
             int id = GetIdFromInput();
             try
