@@ -1,7 +1,9 @@
 ﻿using EBanking.BusinessLayer.Interfaces;
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
+using EBanking.Validation.Validators;
 using System.Net.WebSockets;
+using System.Security.Principal;
 
 namespace EBanking.BusinessLayer
 {
@@ -41,7 +43,9 @@ namespace EBanking.BusinessLayer
                     Status = AccountStatus.ACTIVE
                 };
 
-                //VALIDIRATI!!!!!
+                var resultInfo = new AccountValidator(newAccount).Validate();
+                if (resultInfo.IsValid == false)
+                    throw new Exception(resultInfo.GetErrorsString());
 
                 await Broker.StartTransactionAsync();
                 var accountFromDB = await Broker.CreateAccountAsync(newAccount);
@@ -136,6 +140,9 @@ namespace EBanking.BusinessLayer
                 if(account == null)
                     throw new Exception($"Рачун са идентификатором: '{accountId}' није пронађен.");
                 account.Status = status;
+                var resultInfo = new AccountValidator(account).Validate();
+                if (resultInfo.IsValid == false)
+                    throw new Exception(resultInfo.GetErrorsString());
                 await Broker.StartTransactionAsync();
                 var updatedAccount = await Broker.UpdateAccountByIdAsync(account);
                 await Broker.CommitTransactionAsync();

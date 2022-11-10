@@ -4,10 +4,17 @@ using System.Data.SqlClient;
 
 namespace SqlDataAccesss.SqlModels
 {
-    internal class SqlCurrency : Currency, ISqlEntity
+    internal class SqlCurrency : SqlEntity
     {
-        public string GetTableName() { return "[dbo].[Currency]"; }
-        public IEntity GetEntityFromSqlReader(SqlDataReader reader)
+        public Currency Currency { private get; set; }
+        public SqlCurrency(Currency currency) : base(currency)
+        {
+            Currency = currency;
+        }
+        public SqlCurrency() { }
+
+        public override string GetTableName() { return "[dbo].[Currency]"; }
+        public override IEntity GetEntityFromSqlReader(SqlDataReader reader)
         {
             return new Currency()
             {
@@ -16,31 +23,31 @@ namespace SqlDataAccesss.SqlModels
                 CurrencyCode = reader.GetString("Code")
             };
         }
-        public void SetSqlInsertCommand(SqlCommand command)
+        public override void SetSqlInsertCommand(SqlCommand command)
         {
             command.CommandText = $"insert into {GetTableName()}(Name, Code) output inserted.ID values (@name, @code)";
-            command.Parameters.AddWithValue("@name", Name);
-            command.Parameters.AddWithValue("@code", CurrencyCode);
+            command.Parameters.AddWithValue("@name", Currency.Name);
+            command.Parameters.AddWithValue("@code", Currency.CurrencyCode);
         }
-        public void SetSqlUpdateByIdCommand(SqlCommand command)
+        public override void SetSqlUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE {GetTableName()} SET Name = '{Name}', Code = '{CurrencyCode}' WHERE Id = {Id}";
+            command.CommandText = $"UPDATE {GetTableName()} SET Name = '{Currency.Name}', Code = '{Currency.CurrencyCode}' WHERE Id = {Currency.Id}";
         }
-        public void SetSqlDeleteByIdCommand(SqlCommand command)
+        public override void SetSqlDeleteByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Id}";
+            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Currency.Id}";
         }
-        public void SetSqlSelectByIdCommand(SqlCommand command)
+        public override void SetSqlSelectByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"SELECT * FROM {GetTableName()} WHERE id={Id}";
+            command.CommandText = $"SELECT * FROM {GetTableName()} WHERE id={Currency.Id}";
         }
-        public void SetSqlSelectAllCommand(SqlCommand command)
+        public override void SetSqlSelectAllCommand(SqlCommand command)
         {
             command.CommandText = $"SELECT * FROM {GetTableName()}";
         }
         public void SetSqlSelectAllAccountsByCurrencyCommand(SqlCommand command)
         {
-            command.CommandText = $"SELECT * FROM {new SqlAccount().GetTableName()} WHERE CurrencyId={Id}";
+            command.CommandText = $"SELECT * FROM {new SqlAccount().GetTableName()} WHERE CurrencyId={Currency.Id}";
         }
     }
 }

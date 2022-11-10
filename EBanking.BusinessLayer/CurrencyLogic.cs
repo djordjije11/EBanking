@@ -1,9 +1,11 @@
-﻿using EBanking.DataAccessLayer.Interfaces;
+﻿using EBanking.BusinessLayer.Interfaces;
+using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
+using EBanking.Validation.Validators;
 
 namespace EBanking.BusinessLayer
 {
-    public class CurrencyLogic
+    public class CurrencyLogic : ICurrencyLogic
     {
         IBroker Broker { get; }
         public CurrencyLogic(IBroker broker)
@@ -12,17 +14,17 @@ namespace EBanking.BusinessLayer
         }
         public async Task<Currency> AddCurrencyAsync(string name, string code)
         {
+            var newCurrency = new Currency()
+            {
+                Name = name,
+                CurrencyCode = code
+            };
+            var resultInfo = new CurrencyValidator(newCurrency).Validate();
+            if (resultInfo.IsValid == false)
+                throw new Exception(resultInfo.GetErrorsString());
             try
             {
                 await Broker.StartConnectionAsync();
-
-                var newCurrency = new Currency()
-                {
-                    Name = name,
-                    CurrencyCode = code
-                };
-
-                //VALIDIRATI!!!!
                 await Broker.StartTransactionAsync();
                 var currencyFromDB = await Broker.CreateCurrencyAsync(newCurrency);
                 await Broker.CommitTransactionAsync();
@@ -46,7 +48,7 @@ namespace EBanking.BusinessLayer
                 await Broker.StartConnectionAsync();
                 var currency = await Broker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
                 if (currency == null)
-                    throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађен.");
+                    throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађена.");
                 return currency;
             }
             finally
@@ -68,10 +70,10 @@ namespace EBanking.BusinessLayer
         }
         public async Task<Currency> RemoveCurrencyAsync(int currencyId)
         {
+            var currency = new Currency() { Id = currencyId };
             try
             {
                 await Broker.StartConnectionAsync();
-                var currency = new Currency() { Id = currencyId };
                 var accounts = await Broker.GetAllAccountsByCurrencyAsync(currency);
                 if (accounts != null && accounts.Count > 0)
                     throw new Exception("Не сме се обрисати валута коју користе рачуни.");
@@ -97,11 +99,13 @@ namespace EBanking.BusinessLayer
                 await Broker.StartConnectionAsync();
                 var currency = await Broker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
                 if (currency == null)
-                    throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађен.");
+                    throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађена.");
                 currency.Name = name;
                 currency.CurrencyCode = code;
 
-                //VALIDIRATI!!!
+                var resultInfo = new CurrencyValidator(currency).Validate();
+                if (resultInfo.IsValid == false)
+                    throw new Exception(resultInfo.GetErrorsString());
 
                 await Broker.StartTransactionAsync();
                 var updatedCurrency = await Broker.UpdateCurrencyByIdAsync(currency);
@@ -119,5 +123,4 @@ namespace EBanking.BusinessLayer
             }
         }
     }
-}
 }

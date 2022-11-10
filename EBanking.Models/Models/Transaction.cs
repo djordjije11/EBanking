@@ -1,7 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-
-namespace EBanking.Models
+﻿namespace EBanking.Models
 {
     public class Transaction : IEntity
     {

@@ -146,5 +146,15 @@ namespace SqlDataAccesss.SqlBrokers
         {
             return await new SqlUserBroker().UpdateUserByIdAsync(user);
         }
+
+        public async Task<List<Account>> GetAllAccountsByCurrencyAsync(Currency currency)
+        {
+            return await new SqlCurrencyBroker().GetAllAccountsByCurrencyAsync(currency);
+        }
+
+        public async Task<Account?> GetAccountByNumber(Account account)
+        {
+            return await new SqlAccountBroker().GetAccountByNumber(account);
+        }
     }
 }

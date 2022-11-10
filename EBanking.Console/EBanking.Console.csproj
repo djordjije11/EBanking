@@ -12,11 +12,11 @@
     <PackageReference Include="ConsoleTableExt" Version="3.2.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
     <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
     <ProjectReference Include="..\SqlDataAccesss\SqlDataAccesss.csproj" />
   </ItemGroup>

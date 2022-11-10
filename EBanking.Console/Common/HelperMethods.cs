@@ -1,13 +1,12 @@
 ﻿
 using EBanking.Controllers;
 using EBanking.DataAccessLayer.Interfaces;
-using EBanking.Models;
 using Microsoft.Extensions.DependencyInjection;
-using SqlDataAccessLayer;
-using SqliteDataAccessLayer;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using SqlDataAccesss.SqlBrokers;
+using EBanking.BusinessLayer.Interfaces;
+using EBanking.BusinessLayer;
 
 namespace EBanking.Console.Common
 {
@@ -61,6 +60,13 @@ namespace EBanking.Console.Common
             //services.AddSingleton<UserManager, UserManager>();
             services.AddSingleton<MainController, MainController>();
             services.AddSingleton<UserController, UserController>();
+            services.AddSingleton<AccountController>();
+            services.AddSingleton<CurrencyController>();
+            services.AddSingleton<TransactionController>();
+            services.AddTransient<IUserLogic, UserLogic>();
+            services.AddTransient<IAccountLogic, AccountLogic>();
+            services.AddTransient<ICurrencyLogic, CurrencyLogic>();
+            services.AddTransient<ITransactionLogic, TransactionLogic>();
 
             return services.BuildServiceProvider();
         }

@@ -10,27 +10,27 @@ namespace EBanking.SqlDataAccess.SqlBrokers
     {
         public async Task<Currency> CreateCurrencyAsync(Currency currency)
         {
-            return (Currency)(await CreateEntityAsync(currency));
+            return (Currency)(await CreateEntityAsync(new SqlCurrency(currency)));
         }
         public async Task<Currency> UpdateCurrencyByIdAsync(Currency currency)
         {
-            return (Currency)(await UpdateEntityByIdAsync(currency));
+            return (Currency)(await UpdateEntityByIdAsync(new SqlCurrency(currency)));
         }
         public async Task<Currency> DeleteCurrencyAsync(Currency currency)
         {
-            return (Currency)(await DeleteEntityAsync(currency));
+            return (Currency)(await DeleteEntityAsync(new SqlCurrency(currency)));
         }
         public async Task<Currency?> GetCurrencyByIdAsync(Currency currency)
         {
-            return (await GetEntityByIdAsync(currency)) as Currency;
+            return (await GetEntityByIdAsync(new SqlCurrency(currency))) as Currency;
         }
         public async Task<List<Currency>> GetAllCurrenciesAsync(Currency currency)
         {
-            return EntitiesConverter<Currency>.ConvertList(await GetAllEntitiesAsync(currency));
+            return EntitiesConverter<Currency>.ConvertList(await GetAllEntitiesAsync(new SqlCurrency(currency)));
         }
         public async Task<List<Account>> GetAllAccountsByCurrencyAsync(Currency currency)
         {
-            SqlCurrency sqlCurrency = (SqlCurrency)currency;
+            SqlCurrency sqlCurrency = new SqlCurrency(currency);
             var accounts = new List<Account>();
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();

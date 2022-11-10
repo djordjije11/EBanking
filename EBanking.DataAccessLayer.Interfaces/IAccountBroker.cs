@@ -9,6 +9,7 @@ namespace EBanking.DataAccessLayer.Interfaces
         Task<Account> DeleteAccountAsync(Account account);
         Task<Account?> GetAccountByIdAsync(Account account);
         Task<List<Account>> GetAllAccountsAsync(Account account);
+        Task<Account?> GetAccountByNumber(Account account);
         Task<List<Transaction>> GetTransactionsByAccountAsync(Account account);
     }
 }

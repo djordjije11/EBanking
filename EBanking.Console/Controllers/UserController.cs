@@ -1,4 +1,6 @@
 ﻿using ConsoleTableExt;
+using EBanking.BusinessLayer.Interfaces;
+using EBanking.Console.Common;
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +13,6 @@ namespace EBanking.Controllers
         {
             ServiceProvider = serviceProvider;
         }
-
         public IServiceProvider ServiceProvider { get; }
 
         public async Task Start()
@@ -45,30 +46,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                var newUser = new User()
-                                {
-                                    FirstName = firstName,
-                                    LastName = lastName,
-                                    Email = email,
-                                    Password = password
-                                };
-
-                                // ValidateUserData(newUser);
-                                //var resultInfo = new ValidatorFactory.Validate(newUser);
-
-                                var resultInfo = new UserValidator(newUser).Validate();
-
-                                if (resultInfo.IsValid == false)
-                                {
-                                    resultInfo.Errors.ForEach(err => System.Console.WriteLine($"[ERROR]> {err}"));
-                                    
-                                    System.Console.WriteLine("(притисните било који тастер за наставак)");
-                                    System.Console.ReadKey();
-                                    break;
-                                }
-
-                                var userBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-                                var user = await userBroker.CreateUserAsync(newUser);
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var user = await userLogic.AddUserAsync(firstName, lastName, email, password);
 
                                 System.Console.WriteLine($"Додат нови корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -103,39 +82,20 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var userBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-                                var user = await userBroker.GetUserByIdAsync(userID);
-
-                                if (user == null)
-                                {
-                                    System.Console.WriteLine($"Корисник са идентификатором: '{userID}' није пронађен");
-                                    break;
-                                }
-
-                                System.Console.WriteLine(user.ToString());
-
                                 System.Console.WriteLine("Унесите нову вредност за име:");
-                                user.FirstName = System.Console.ReadLine() ?? "";
+                                string firstName = System.Console.ReadLine() ?? "";
 
                                 System.Console.WriteLine("Унесите нову вредност за презиме:");
-                                user.LastName = System.Console.ReadLine() ?? "";
+                                string lastName = System.Console.ReadLine() ?? "";
+
+                                System.Console.WriteLine("Унесите стару вредност за шифру:");
+                                string oldPassword = System.Console.ReadLine() ?? "";
 
                                 System.Console.WriteLine("Унесите нову вредност за шифру:");
-                                user.Password = System.Console.ReadLine() ?? "";
+                                string newPassword = System.Console.ReadLine() ?? "";
 
-                                //ValidateUserData(user);
-                                var resultInfo = new UserValidator(user).Validate();
-                                
-                                if (resultInfo.IsValid == false)
-                                {
-                                    resultInfo.Errors.ForEach(err => System.Console.WriteLine($"[ERROR]> {err}"));
-                                    
-                                    System.Console.WriteLine("(притисните било који тастер за наставак)");
-                                    System.Console.ReadKey();
-                                    break;
-                                }
-
-                                await userBroker.UpdateUserAsync(user);
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var user = await userLogic.UpdateUserAsync(userID, firstName, lastName, oldPassword, newPassword);
 
                                 System.Console.WriteLine($"Ажуриран корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -170,25 +130,13 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var userBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-                                var user = await userBroker.GetUserByIdAsync(userID);
+                                System.Console.WriteLine("Унесите шифру:");
+                                var password = System.Console.ReadLine() ?? "";
 
-                                if (user == null)
-                                {
-                                    System.Console.WriteLine($"Корисник са идентификатором: '{userID}' није пронађен");
-                                    break;
-                                }
-
-                                var isDeleted = await userBroker.DeleteUserAsync(userID);
-
-                                if (isDeleted == true)
-                                {
-                                    System.Console.WriteLine($"Обрисан корисник: '{user}'. (притисните било који тастер за наставак)");
-                                }
-                                else
-                                {
-                                    System.Console.WriteLine($"Грешка приликом брисања корисника: '{user}'. (притисните било који тастер за наставак)");
-                                }
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var user = await userLogic.DeleteUserAsync(userID, password);
+                                
+                                System.Console.WriteLine($"Обрисан корисник: '{user}'. (притисните било који тастер за наставак)");
 
                                 System.Console.ReadKey();
                                 break;
@@ -221,26 +169,18 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var userBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-                                var user = await userBroker.GetUserByIdAsync(userID);
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var user = await userLogic.FindUserAsync(userID);
 
-                                if (user == null)
-                                {
-                                    System.Console.WriteLine($"Корисник са идентификатором: '{userID}' није пронађен");
-                                    break;
-                                }
-                                else
-                                {
-                                    System.Console.WriteLine($"Корисник: '{user}'. (притисните било који тастер за наставак)");
-                                }
+                                System.Console.WriteLine($"Корисник: '{user}'. (притисните било који тастер за наставак)");
 
                                 System.Console.ReadKey();
                                 break;
                             }
                         case "5":
                             {
-                                var userBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-                                var users = await userBroker.GetAllUsersAsync();
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var users = await userLogic.GetAllUsersAsync();
 
                                 ConsoleTableBuilder
                                     .From(users)
@@ -248,6 +188,57 @@ namespace EBanking.Controllers
                                     .WithColumn("ИД", "Име", "Презиме", "Мејл", "Шифра")
                                     .ExportAndWriteLine();
 
+                                System.Console.WriteLine("Притисните било који тастер за наставак...");
+                                System.Console.ReadKey();
+                                break;
+                            }
+                        case "6":
+                            {
+                                var exitRequested = false;
+                                var userID = 0;
+                                while (true)
+                                {
+                                    System.Console.WriteLine("Унесите идентификатор корисника: (x - за назад)");
+                                    var userIDText = System.Console.ReadLine() ?? "";
+
+                                    if (userIDText.ToLower() == "x")
+                                    {
+                                        exitRequested = true;
+                                        break;
+                                    }
+
+                                    if (int.TryParse(userIDText, out userID) == true)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        System.Console.WriteLine("Грешка приликом уноса. Покушајте поново.");
+                                    }
+                                }
+
+                                if (exitRequested == true)
+                                    break;
+                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
+                                var accounts = await userLogic.GetAccountsByUser(userID);
+
+                                var tableRawData = accounts.Select(x => new
+                                {
+                                    Id = x.Id,
+                                    Number = x.Number,
+                                    UserFirstName = x.User.FirstName,
+                                    UserLastName = x.User.LastName,
+                                    UserEmail = x.User.Email,
+                                    CurrencyName = x.Currency.Name,
+                                    Balance = x.Balance,
+                                    Status = x.Status.GetDisplayName()
+                                }).ToList();
+
+                                ConsoleTableBuilder
+                                    .From(tableRawData)
+                                    .WithTitle("РАЧУНИ ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
+                                    .WithColumn("ИД", "Број рачуна", "Име", "Презиме", "ЕМаил", "Валута", "Износ", "Статус")
+                                    .ExportAndWriteLine();
                                 System.Console.WriteLine("Притисните било који тастер за наставак...");
                                 System.Console.ReadKey();
                                 break;
@@ -276,6 +267,7 @@ namespace EBanking.Controllers
             System.Console.WriteLine("3. Обриши");
             System.Console.WriteLine("4. Прикажи једног");
             System.Console.WriteLine("5. Прикажи све");
+            System.Console.WriteLine("6. Прикажи све рачуне корисника.");
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
         }

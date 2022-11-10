@@ -8,9 +8,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
     public abstract class SqlEntityBroker
     {
         protected readonly SqlConnector connector = SqlConnector.GetInstance();
-        protected async Task<IEntity> CreateEntityAsync(IEntity entity)
+        protected async Task<IEntity> CreateEntityAsync(SqlEntity sqlEntity)
         {
-            ISqlEntity sqlEntity = (ISqlEntity) entity;
+            IEntity entity = sqlEntity.Entity;
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();
             sqlEntity.SetSqlInsertCommand(command);
@@ -20,9 +20,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
             entity.SetIdentificator(id.Value);
             return entity;
         }
-        protected async Task<IEntity> UpdateEntityByIdAsync(IEntity entity)
+        protected async Task<IEntity> UpdateEntityByIdAsync(SqlEntity sqlEntity)
         {
-            ISqlEntity sqlEntity = (ISqlEntity)entity;
+            IEntity entity = sqlEntity.Entity;
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();
             sqlEntity.SetSqlUpdateByIdCommand(command);
@@ -31,9 +31,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
                 throw new Exception($"{entity.GetClassName()} does not exist.");
             return entity;
         }
-        protected async Task<IEntity> DeleteEntityAsync(IEntity entity)
+        protected async Task<IEntity> DeleteEntityAsync(SqlEntity sqlEntity)
         {
-            ISqlEntity sqlEntity = (ISqlEntity)entity;
+            IEntity entity = sqlEntity.Entity;
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();
             sqlEntity.SetSqlDeleteByIdCommand(command);
@@ -42,9 +42,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
                 throw new Exception($"{entity.GetClassName()} does not exist.");
             return entity;
         }
-        protected async Task<IEntity?> GetEntityByIdAsync(IEntity entity)
+        protected async Task<IEntity?> GetEntityByIdAsync(SqlEntity sqlEntity)
         {
-            ISqlEntity sqlEntity = (ISqlEntity)entity;
+            IEntity entity = sqlEntity.Entity;
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();
             sqlEntity.SetSqlSelectByIdCommand(command);
@@ -57,9 +57,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
             await reader.CloseAsync();
             return wantedEntity;
         }
-        protected async Task<List<IEntity>> GetAllEntitiesAsync(IEntity entity)
+        protected async Task<List<IEntity>> GetAllEntitiesAsync(SqlEntity sqlEntity)
         {
-            ISqlEntity sqlEntity = (ISqlEntity)entity;
+            IEntity entity = sqlEntity.Entity;
             var entities = new List<IEntity>();
             connector.StartCommand();
             var command = connector.GetCommand();

@@ -4,10 +4,16 @@ using System.Data.SqlClient;
 
 namespace SqlDataAccesss.SqlModels
 {
-    internal class SqlTransaction : Transaction, ISqlEntity
+    internal class SqlTransaction : SqlEntity
     {
-        public string GetTableName() { return "[dbo].[Transaction]"; }
-        public IEntity GetEntityFromSqlReader(SqlDataReader reader)
+        public Transaction Transaction { private get; set; }
+        public SqlTransaction(Transaction transaction) : base(transaction)
+        {
+            Transaction = transaction;
+        }
+        public SqlTransaction() { }
+        public override string GetTableName() { return "[dbo].[Transaction]"; }
+        public override IEntity GetEntityFromSqlReader(SqlDataReader reader)
         {
             return new Transaction()
             {
@@ -58,24 +64,24 @@ namespace SqlDataAccesss.SqlModels
                 }
             };
         }
-        public void SetSqlInsertCommand(SqlCommand command)
+        public override void SetSqlInsertCommand(SqlCommand command)
         {
             command.CommandText = "insert into [dbo].[Transaction](Amount, Date, FromAccountId, ToAccountId)" +
                 " output inserted.ID values (@amount, @date, @fromAccountId, @toAccountId)";
-            command.Parameters.AddWithValue("@amount", Amount);
-            command.Parameters.AddWithValue("@date", (Date));
-            command.Parameters.AddWithValue("@fromAccountId", FromAccount.Id);
-            command.Parameters.AddWithValue("@toAccountId", ToAccount.Id);
+            command.Parameters.AddWithValue("@amount", Transaction.Amount);
+            command.Parameters.AddWithValue("@date", (Transaction.Date));
+            command.Parameters.AddWithValue("@fromAccountId", Transaction.FromAccount.Id);
+            command.Parameters.AddWithValue("@toAccountId", Transaction.ToAccount.Id);
         }
-        public void SetSqlUpdateByIdCommand(SqlCommand command)
+        public override void SetSqlUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE {GetTableName()} SET Amount = {Amount}, Date = '{Date}', FromAccountId = {FromAccount.Id}, ToAccountId = {ToAccount.Id} WHERE Id = {Id}";
+            command.CommandText = $"UPDATE {GetTableName()} SET Amount = {Transaction.Amount}, Date = '{Transaction.Date}', FromAccountId = {Transaction.FromAccount.Id}, ToAccountId = {Transaction.ToAccount.Id} WHERE Id = {Transaction.Id}";
         }
-        public void SetSqlDeleteByIdCommand(SqlCommand command)
+        public override void SetSqlDeleteByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Id}";
+            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Transaction.Id}";
         }
-        public void SetSqlSelectByIdCommand(SqlCommand command)
+        public override void SetSqlSelectByIdCommand(SqlCommand command)
         {
             command.CommandText = "select t.*, fa.Balance as faBalance, fa.Status as faStatus, fa.Number as faNumber, " +
                 "fa.UserId as faUserId, fu.FirstName as fuFirstName, fu.LastName as fuLastName, fu.Email as fuEmail, fu.Password as fuPassword, " +
@@ -89,9 +95,9 @@ namespace SqlDataAccesss.SqlModels
                 $"INNER JOIN {new SqlCurrency().GetTableName()} as fc ON (fa.CurrencyId = fc.Id)" +
                 $"INNER JOIN {new SqlUser().GetTableName()} as tu ON (ta.UserId = tu.Id)" +
                 $"INNER JOIN {new SqlCurrency().GetTableName()} as tc ON (ta.CurrencyId = tc.Id) " +
-                "WHERE t.id =" + Id;
+                "WHERE t.id =" + Transaction.Id;
         }
-        public void SetSqlSelectAllCommand(SqlCommand command)
+        public override void SetSqlSelectAllCommand(SqlCommand command)
         {
             command.CommandText = "select t.*, fa.Balance as faBalance, fa.Status as faStatus, fa.Number as faNumber, " +
                 "fa.UserId as faUserId, fu.FirstName as fuFirstName, fu.LastName as fuLastName, fu.Email as fuEmail, fu.Password as fuPassword, " +

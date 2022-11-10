@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
     <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.Validation\EBanking.Validation.csproj" />
   </ItemGroup>
 
 </Project>

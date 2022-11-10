@@ -1,15 +1,20 @@
 ﻿using EBanking.Models;
 using System.Data;
 using System.Data.SqlClient;
-using System.Security.Principal;
 using System.Text;
 
 namespace SqlDataAccesss.SqlModels
 {
-    internal class SqlAccount : Account, ISqlEntity
+    internal class SqlAccount : SqlEntity
     {
-        public string GetTableName() { return "[dbo].[Account]"; }
-        public IEntity GetEntityFromSqlReader(SqlDataReader reader)
+        public Account Account { private get; set; }
+        public SqlAccount(Account account) : base(account)
+        {
+            Account = account;
+        }
+        public SqlAccount() { }
+        public override string GetTableName() { return "[dbo].[Account]"; }
+        public override IEntity GetEntityFromSqlReader(SqlDataReader reader)
         {
             return new Account()
             {
@@ -33,34 +38,40 @@ namespace SqlDataAccesss.SqlModels
                 }
             };
         }
-        public void SetSqlInsertCommand(SqlCommand command)
+        public override void SetSqlInsertCommand(SqlCommand command)
         {
             command.CommandText = "insert into [dbo].[Account](Balance, Status, Number, UserId, CurrencyId)" +
                 " output inserted.ID values (@balance, @status, @number, @userId, @currencyId)";
-            command.Parameters.AddWithValue("@balance", Balance);
-            command.Parameters.AddWithValue("@status", ((int)Status));
-            command.Parameters.AddWithValue("@number", Number);
-            command.Parameters.AddWithValue("@userId", User.Id);
-            command.Parameters.AddWithValue("@currencyId", Currency.Id);
+            command.Parameters.AddWithValue("@balance", Account.Balance);
+            command.Parameters.AddWithValue("@status", ((int)Account.Status));
+            command.Parameters.AddWithValue("@number", Account.Number);
+            command.Parameters.AddWithValue("@userId", Account.User.Id);
+            command.Parameters.AddWithValue("@currencyId", Account.Currency.Id);
         }
-        public void SetSqlUpdateByIdCommand(SqlCommand command)
+        public override void SetSqlUpdateByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"UPDATE {GetTableName()} SET Balance = {Balance}, Status = {(int)Status}, Number = '{Number}', UserId = {User.Id}, CurrencyId = {Currency.Id} WHERE Id = {Id}";
+            command.CommandText = $"UPDATE {GetTableName()} SET Balance = {Account.Balance}, Status = {(int)Account.Status}, Number = '{Account.Number}', UserId = {Account.User.Id}, CurrencyId = {Account.Currency.Id} WHERE Id = {Account.Id}";
         }
-        public void SetSqlDeleteByIdCommand(SqlCommand command)
+        public override void SetSqlDeleteByIdCommand(SqlCommand command)
         {
-            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Id}";
+            command.CommandText = $"DELETE FROM {GetTableName()} WHERE id={Account.Id}";
         }
-        public void SetSqlSelectByIdCommand(SqlCommand command)
+        public override void SetSqlSelectByIdCommand(SqlCommand command)
         {
             command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
                  $"from {GetTableName()} as a INNER JOIN {new SqlUser().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new SqlCurrency().GetTableName()} as c ON (a.CurrencyId = c.Id) " +
-                 "where a.Id = " + Id;
+                 "where a.Id = " + Account.Id;
         }
-        public void SetSqlSelectAllCommand(SqlCommand command)
+        public override void SetSqlSelectAllCommand(SqlCommand command)
         {
             command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
                 $"from {GetTableName()} as a INNER JOIN {new SqlUser().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new SqlCurrency().GetTableName()} as c ON (a.CurrencyId = c.Id)";
+        }
+        public void SetSqlSelectAccountByNumber(SqlCommand command)
+        {
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code \"" +
+                 $"from {GetTableName()} as a INNER JOIN {new SqlUser().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new SqlCurrency().GetTableName()} as c ON (a.CurrencyId = c.Id) " +
+                 $"where a.Number = {Account.Number}";
         }
         public void SetSqlSelectAllTransactionsByAccountId(SqlCommand command)
         {
@@ -76,7 +87,7 @@ namespace SqlDataAccesss.SqlModels
                 $"INNER JOIN {new SqlCurrency().GetTableName()} as fc ON (fa.CurrencyId = fc.Id)" +
                 $"INNER JOIN {new SqlUser().GetTableName()} as tu ON (ta.UserId = tu.Id)" +
                 $"INNER JOIN {new SqlCurrency().GetTableName()} as tc ON (ta.CurrencyId = tc.Id) " +
-                $"WHERE t.FromAccountId = {Id} OR t.ToAccountId = {Id} " +
+                $"WHERE t.FromAccountId = {Account.Id} OR t.ToAccountId = {Account.Id} " +
                 $"ORDER BY t.Date";
         }
     }

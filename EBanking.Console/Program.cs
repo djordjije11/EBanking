@@ -8,7 +8,6 @@ Console.OutputEncoding = Encoding.Unicode;
 Console.InputEncoding = Encoding.Unicode;
 // Umesto VARCHAR smo u DDL-u za Ime i prezime stavili NVARCHAR da bi sql server mogao da cuva cirilicne karaktere
 
-
 var databaseType = "sql";
 var serviceProvider = HelperMethods.CreateServiceProvider(databaseType);
 
@@ -31,8 +30,5 @@ var mainControler = serviceProvider.GetRequiredService<MainController>();
 //Console.WriteLine("2");
 //Console.WriteLine("\t* 2.a");
 //Console.WriteLine("\t* 2.a");
-
-// Na vjezbama smo imali problem ovdje jer nismo stavili await
-// pa je program bio prekinut cim smo prvi put u nekoj metodi imali await i napustili smo glavnu nit (pojasnicu na sledecem terminu ako me podsjetite)
 
 await mainControler.Start();

@@ -1,5 +1,5 @@
-﻿using EBanking.DataAccessLayer.Interfaces;
-using EBanking.Models;
+﻿using ConsoleTableExt;
+using EBanking.BusinessLayer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.Controllers
@@ -84,15 +84,6 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var accountBroker = ServiceProvider.GetRequiredService<IAccountBroker>();
-                                var fromAccount = await accountBroker.GetAccountByNumberAsync(fromAccountNumber);
-
-                                if (fromAccount == null)
-                                {
-                                    System.Console.WriteLine($"Рачун са бројем: '{fromAccountNumber}' није пронађен");
-                                    break;
-                                }
-
                                 var toAccountNumber = string.Empty;
                                 while (true)
                                 {
@@ -118,29 +109,10 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var toAccount = await accountBroker.GetAccountByNumberAsync(toAccountNumber);
+                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
+                                var transaction = await transactionLogic.AddTransactionAsync(amount, DateTime.Now, fromAccountNumber, toAccountNumber);
 
-                                if (toAccount == null)
-                                {
-                                    System.Console.WriteLine($"Рачун са бројем: '{toAccountNumber}' није пронађен");
-                                    break;
-                                }
-
-
-                                var newTransaction = new Transcation()
-                                {
-                                    Amount = amount,
-                                    Date = DateTime.UtcNow,
-                                    FromAccount = fromAccount,
-                                    FromAccountId = fromAccount.Id,
-                                    ToAccount = toAccount,
-                                    ToAccountId = toAccount.Id
-                                };
-
-                                var transactionBroker = ServiceProvider.GetRequiredService<ITransactionBroker>();
-                                var transcation = await transactionBroker.CreateTranscationAsync(newTransaction);
-
-                                System.Console.WriteLine($"Додата нова трансакција: '{transcation}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Додата нова трансакција: '{transaction}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -173,26 +145,18 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transactionBroker = ServiceProvider.GetRequiredService<ITransactionBroker>();
-                                var transaction = await transactionBroker.GetTransactionByIdAsync(transactionID);
+                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
+                                var transaction = await transactionLogic.FindTransactionAsync(transactionID);
 
-                                if (transaction == null)
-                                {
-                                    System.Console.WriteLine($"Трансакција са идентификатором: '{transactionID}' није пронађена.");
-                                    break;
-                                }
-                                else
-                                {
-                                    System.Console.WriteLine($"Трансакција: '{transaction}'. (притисните било који тастер за наставак)");
-                                }
+                                System.Console.WriteLine($"Трансакција: '{transaction}'. (притисните било који тастер за наставак)");
 
                                 System.Console.ReadKey();
                                 break;
                             }
                         case "3":
                             {
-                                var transactionBroker = ServiceProvider.GetRequiredService<ITransactionBroker>();
-                                var transactions = await transactionBroker.GetAllTransactionsAsync();
+                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
+                                var transactions = await transactionLogic.GetAllTransactionsAsync();
 
                                 //var tableRawData = transactions.Select(x => new
                                 //{
@@ -211,6 +175,12 @@ namespace EBanking.Controllers
                                 //    .WithTitle("РАЧУНИ ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
                                 //    .WithColumn("ИД", "Број рачуна", "Име", "Презиме", "ЕМаил", "Валута", "Износ", "Статус")
                                 //    .ExportAndWriteLine();
+
+                                ConsoleTableBuilder
+                                    .From(transactions)
+                                    .WithTitle("ТРАНСАКЦИЈЕ ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
+                                    .WithColumn("ИД", "Износ", "Датум", "Давалац", "Прималац")
+                                    .ExportAndWriteLine();
 
                                 System.Console.WriteLine("Притисните било који тастер за наставак...");
                                 System.Console.ReadKey();
@@ -231,7 +201,6 @@ namespace EBanking.Controllers
                 }
             }
         }
-
         void ShowTransactionMenu()
         {
             System.Console.Clear();
