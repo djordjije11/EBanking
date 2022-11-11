@@ -19,6 +19,7 @@
     <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
     <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
     <ProjectReference Include="..\SqlDataAccesss\SqlDataAccesss.csproj" />
+    <ProjectReference Include="..\SqlLiteDataAccess\SqliteDataAccess.csproj" />
   </ItemGroup>
 
 </Project>

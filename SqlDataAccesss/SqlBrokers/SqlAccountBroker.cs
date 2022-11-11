@@ -46,7 +46,6 @@ namespace EBanking.SqlDataAccess.SqlBrokers
             await reader.CloseAsync();
             return transactions;
         }
-
         public async Task<Account?> GetAccountByNumber(Account account)
         {
             SqlAccount sqlAccount = new SqlAccount(account);

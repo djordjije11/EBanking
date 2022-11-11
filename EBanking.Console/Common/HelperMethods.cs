@@ -1,5 +1,4 @@
-﻿
-using EBanking.Controllers;
+﻿using EBanking.Controllers;
 using EBanking.DataAccessLayer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +6,7 @@ using System.Reflection;
 using SqlDataAccesss.SqlBrokers;
 using EBanking.BusinessLayer.Interfaces;
 using EBanking.BusinessLayer;
+using SqliteDataAccess.SqliteBrokers;
 
 namespace EBanking.Console.Common
 {
@@ -48,6 +48,7 @@ namespace EBanking.Console.Common
                 case "SQLITE":
                     {
                         //services.AddTransient<IAccountBroker, SqliteAccountBroker>();
+                        services.AddTransient<IBroker, SqliteBroker>();
                         break;
                     }
                 default:

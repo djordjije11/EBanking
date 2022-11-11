@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EBanking.BusinessLayer.Inte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EBanking.BusinessLayer", "EBanking.BusinessLayer\EBanking.BusinessLayer.csproj", "{A7D24A8C-4C45-45E5-9827-FACA91551F5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation", "FluentValidation\FluentValidation.csproj", "{72575BE3-EE70-44D1-83BF-EC0169583A7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentValidation", "FluentValidation\FluentValidation.csproj", "{72575BE3-EE70-44D1-83BF-EC0169583A7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBanking.Validation", "EBanking.Validation\EBanking.Validation.csproj", "{5AB379F2-1DD4-49CB-88F0-5C117809E587}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EBanking.Validation", "EBanking.Validation\EBanking.Validation.csproj", "{5AB379F2-1DD4-49CB-88F0-5C117809E587}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlLiteDataAccess", "SqlLiteDataAccess\SqlLiteDataAccess.csproj", "{8E89299F-ADBC-489A-A521-A9ED73B314F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqliteDataAccess", "SqlLiteDataAccess\SqliteDataAccess.csproj", "{8E89299F-ADBC-489A-A521-A9ED73B314F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

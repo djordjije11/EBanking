@@ -8,7 +8,7 @@ namespace EBanking.SqlDataAccess.SqlConnectors
     {
         private const string CONNECTION_STRING =
             @"Data Source=DESKTOP-A2R6AE6\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        private SqlConnection connection;
+        private readonly SqlConnection connection;
         private SqlTransaction? transaction;
         private SqlCommand? command;
         private static SqlConnector connector;
@@ -28,15 +28,13 @@ namespace EBanking.SqlDataAccess.SqlConnectors
         {
             await connection.OpenAsync();
         }
+        public async Task EndConnectionAsync()
+        {
+            await connection.CloseAsync();
+        }
         public async Task StartTransactionAsync()
         {
             transaction = (SqlTransaction)(await connection.BeginTransactionAsync());
-        }
-        public void StartCommand()
-        {
-            command = connection.CreateCommand();
-            if(transaction != null)
-                command.Transaction = transaction;
         }
         public async Task CommitTransactionAsync()
         {
@@ -50,9 +48,11 @@ namespace EBanking.SqlDataAccess.SqlConnectors
                 await transaction.RollbackAsync();
             transaction = null;
         }
-        public async Task EndConnectionAsync()
+        public void StartCommand()
         {
-            await connection.CloseAsync();
+            command = connection.CreateCommand();
+            if (transaction != null)
+                command.Transaction = transaction;
         }
         public bool IsConnected() => connection.State == ConnectionState.Open;
         public SqlConnection GetConnection() => connection;
