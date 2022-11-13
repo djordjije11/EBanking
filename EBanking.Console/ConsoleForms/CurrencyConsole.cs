@@ -1,20 +1,17 @@
 ﻿using ConsoleTableExt;
 using EBanking.BusinessLayer.Interfaces;
-using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.Controllers
+namespace EBanking.ConsoleForms
 {
-    public class CurrencyController
+    public class CurrencyConsole
     {
-        public CurrencyController(IServiceProvider serviceProvider)
+        public CurrencyConsole(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
         }
-
         public IServiceProvider ServiceProvider { get; }
-
         public async Task Start()
         {
             var goBackRequested = false;
@@ -40,10 +37,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите код:");
                                 var code = System.Console.ReadLine() ?? "";
 
-                                //ValidateCurrencyData(newCurrency);
-
-                                var currencyLogic = ServiceProvider.GetRequiredService<ICurrencyLogic>();
-                                var currency = await currencyLogic.AddCurrencyAsync(name, code);
+                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
+                                var currency = await currencyController.CreateCurrencyAsync(name, code);
 
                                 System.Console.WriteLine($"Додата нова валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -84,8 +79,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите нову вредност за код:");
                                 string code = System.Console.ReadLine() ?? "";
 
-                                var currencyLogic = ServiceProvider.GetRequiredService<ICurrencyLogic>();
-                                var currency = await currencyLogic.UpdateCurrencyAsync(currencyID, name, code);
+                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
+                                var currency = await currencyController.UpdateCurrencyAsync(currencyID, name, code);
 
                                 System.Console.WriteLine($"Ажурирана валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -120,8 +115,8 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currencyLogic = ServiceProvider.GetRequiredService<ICurrencyLogic>();
-                                var currency = await currencyLogic.RemoveCurrencyAsync(currencyID);
+                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
+                                var currency = await currencyController.DeleteCurrencyAsync(currencyID);
 
                                 System.Console.WriteLine($"Обрисана валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -156,8 +151,8 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currencyLogic = ServiceProvider.GetRequiredService<ICurrencyLogic>();
-                                var currency = await currencyLogic.FindCurrencyAsync(currencyID);
+                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
+                                var currency = await currencyController.ReadCurrencyAsync(currencyID);
 
                                 System.Console.WriteLine($"Валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -166,8 +161,8 @@ namespace EBanking.Controllers
                             }
                         case "5":
                             {
-                                var currencyLogic = ServiceProvider.GetRequiredService<ICurrencyLogic>();
-                                var currencies = await currencyLogic.GetAllCurrenciesAsync();
+                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
+                                var currencies = await currencyController.ReadAllCurrenciesAsync();
 
                                 ConsoleTableBuilder
                                     .From(currencies)
@@ -194,8 +189,7 @@ namespace EBanking.Controllers
                 }
             }
         }
-
-        void ShowCurrencyMenu()
+        static void ShowCurrencyMenu()
         {
             System.Console.Clear();
             System.Console.WriteLine("1. Додај");
@@ -205,34 +199,6 @@ namespace EBanking.Controllers
             System.Console.WriteLine("5. Прикажи све");
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
-        }
-
-        void ValidateCurrencyData(Currency currency)
-        {
-            ValidateName(currency);
-            ValidateCode(currency);
-        }
-        void ValidateName(Currency currency)
-        {
-            if (string.IsNullOrWhiteSpace(currency.Name))
-                throw new Exception("Морате унети назив валуте");
-
-            if (currency.Name.Length > 50)
-                throw new Exception("Назив валуте не сме имати више од 50 карактера");
-
-            if (currency.Name.Length < 2)
-                throw new Exception("Назив валуте мора садржати бар два карактера");
-        }
-        void ValidateCode(Currency currency)
-        {
-            if (string.IsNullOrWhiteSpace(currency.CurrencyCode))
-                throw new Exception("Морате унети код валуте");
-
-            if (currency.CurrencyCode.Length > 15)
-                throw new Exception("Код валуте не сме имати више од 15 карактера");
-
-            if (currency.CurrencyCode.Length < 2)
-                throw new Exception("Код валуте мора садржати бар два карактера");
         }
     }
 }

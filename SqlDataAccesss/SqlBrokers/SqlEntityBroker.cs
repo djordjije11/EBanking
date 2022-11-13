@@ -1,13 +1,44 @@
-﻿using EBanking.Models;
+﻿using EBanking.DataAccessLayer.Interfaces;
+using EBanking.Models;
 using EBanking.SqlDataAccess.SqlConnectors;
 using SqlDataAccesss.SqlModels;
 using System.Data.SqlClient;
 
 namespace EBanking.SqlDataAccess.SqlBrokers
 {
-    public abstract class SqlEntityBroker
+    public abstract class SqlEntityBroker : IBroker
     {
         protected readonly SqlConnector connector = SqlConnector.GetInstance();
+
+        public async Task StartConnectionAsync()
+        {
+            await connector.StartConnectionAsync();
+        }
+        public async Task StartTransactionAsync()
+        {
+            await connector.StartTransactionAsync();
+        }
+        public void StartCommand()
+        {
+            connector.StartCommand();
+        }
+        public async Task CommitTransactionAsync()
+        {
+            await connector.CommitTransactionAsync();
+        }
+        public async Task RollbackTransactionAsync()
+        {
+            await connector.RollbackTransactionAsync();
+        }
+        public async Task EndConnectionAsync()
+        {
+            await connector.EndConnectionAsync();
+        }
+        public bool IsConnected() => connector.IsConnected();
+        public string GetBrokerName()
+        {
+            return "SQL";
+        }
         protected async Task<IEntity> CreateEntityAsync(SqlEntity sqlEntity)
         {
             IEntity entity = sqlEntity.Entity;

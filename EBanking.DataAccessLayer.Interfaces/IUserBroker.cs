@@ -2,7 +2,7 @@
 
 namespace EBanking.DataAccessLayer.Interfaces
 {
-    public interface IUserBroker
+    public interface IUserBroker : IBroker
     {
         Task<User> CreateUserAsync(User user);
         Task<User> UpdateUserByIdAsync(User user);

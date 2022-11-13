@@ -7,10 +7,10 @@ namespace EBanking.BusinessLayer
 {
     public class UserLogic : IUserLogic
     {
-        IBroker Broker { get; }
-        public UserLogic(IBroker broker)
+        IUserBroker UserBroker { get; }
+        public UserLogic(IUserBroker userBroker)
         {
-            Broker = broker;
+            UserBroker = userBroker;
         }
         public async Task<User> AddUserAsync(string firstName, string lastName, string email, string password)
         {
@@ -20,29 +20,28 @@ namespace EBanking.BusinessLayer
                 throw new Exception(resultInfo.GetErrorsString());
             try
             {
-                await Broker.StartConnectionAsync();
-                await Broker.StartTransactionAsync();
-                var createdUser = await Broker.CreateUserAsync(user);
-                await Broker.CommitTransactionAsync();
+                await UserBroker.StartConnectionAsync();
+                await UserBroker.StartTransactionAsync();
+                var createdUser = await UserBroker.CreateUserAsync(user);
+                await UserBroker.CommitTransactionAsync();
                 return createdUser;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await UserBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
-
         public async Task<User> UpdateUserAsync(int userId, string firstName, string lastName, string oldPassword, string newPassword)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var user = await Broker.GetUserByIdAsync(new User() { Id = userId });
+                await UserBroker.StartConnectionAsync();
+                var user = await UserBroker.GetUserByIdAsync(new User() { Id = userId });
                 if(user == null)
                     throw new Exception($"Корисник са идентификатором: '{userId}' није пронађен.");
                 if (user.Password.Equals(oldPassword) == false)
@@ -53,90 +52,90 @@ namespace EBanking.BusinessLayer
                 var resultInfo = new UserValidator(user).Validate();
                 if (resultInfo.IsValid == false)
                     throw new Exception(resultInfo.GetErrorsString());
-                await Broker.StartTransactionAsync();
-                var updatedUser = await Broker.UpdateUserByIdAsync(user);
-                await Broker.CommitTransactionAsync();
+                await UserBroker.StartTransactionAsync();
+                var updatedUser = await UserBroker.UpdateUserByIdAsync(user);
+                await UserBroker.CommitTransactionAsync();
                 return updatedUser;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await UserBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
-
         public async Task<User> DeleteUserAsync(int userId, string password)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var user = await Broker.GetUserByIdAsync(new User() { Id = userId });
+                await UserBroker.StartConnectionAsync();
+                var user = await UserBroker.GetUserByIdAsync(new User() { Id = userId });
                 if (user == null)
                     throw new Exception($"Корисник са идентификатором: '{userId}' није пронађен.");
+                var accounts = await UserBroker.GetAccountsByUserAsync(user);
+                if (accounts != null && accounts.Count > 0)
+                    throw new Exception("Не можете брисати корисника уколико већ има рачуне.");
                 if (user.Password.Equals(password) == false)
                     throw new Exception("Не можете брисати корисника без тачно унете шифре.");
-                await Broker.StartTransactionAsync();
-                var deletedUser = await Broker.DeleteUserAsync(user);
-                await Broker.CommitTransactionAsync();
+                await UserBroker.StartTransactionAsync();
+                var deletedUser = await UserBroker.DeleteUserAsync(user);
+                await UserBroker.CommitTransactionAsync();
                 return deletedUser;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await UserBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
-
         public async Task<User> FindUserAsync(int userId)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var user = await Broker.GetUserByIdAsync(new User() { Id = userId });
+                await UserBroker.StartConnectionAsync();
+                var user = await UserBroker.GetUserByIdAsync(new User() { Id = userId });
                 if (user == null)
                     throw new Exception($"Корисник са идентификатором: '{userId}' није пронађен.");
                 return user;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
-
         public async Task<List<User>> GetAllUsersAsync()
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                return await Broker.GetAllUsersAsync(new User());
+                await UserBroker.StartConnectionAsync();
+                return await UserBroker.GetAllUsersAsync(new User());
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
-        public async Task<List<Account>> GetAccountsByUser(int userId)
+        public async Task<List<Account>> GetAccountsByUserAsync(int userId)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var user = await Broker.GetUserByIdAsync(new User() { Id = userId });
+                await UserBroker.StartConnectionAsync();
+                var user = await UserBroker.GetUserByIdAsync(new User() { Id = userId });
                 if (user == null)
                     throw new Exception($"Корисник са идентификатором: '{userId}' није пронађен.");
-                var accounts = await Broker.GetAccountsByUserAsync(user);
+                var accounts = await UserBroker.GetAccountsByUserAsync(user);
                 return accounts;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await UserBroker.EndConnectionAsync();
             }
         }
     }

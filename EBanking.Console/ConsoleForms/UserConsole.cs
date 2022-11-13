@@ -1,20 +1,17 @@
 ﻿using ConsoleTableExt;
 using EBanking.BusinessLayer.Interfaces;
 using EBanking.Console.Common;
-using EBanking.DataAccessLayer.Interfaces;
-using EBanking.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.Controllers
+namespace EBanking.ConsoleForms
 {
-    public class UserController
+    public class UserConsole
     {
-        public UserController(IServiceProvider serviceProvider)
+        public UserConsole(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
         }
         public IServiceProvider ServiceProvider { get; }
-
         public async Task Start()
         {
             var goBackRequested = false;
@@ -46,8 +43,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var user = await userLogic.AddUserAsync(firstName, lastName, email, password);
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var user = await userController.CreateUserAsync(firstName, lastName, email, password);
 
                                 System.Console.WriteLine($"Додат нови корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -94,8 +91,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите нову вредност за шифру:");
                                 string newPassword = System.Console.ReadLine() ?? "";
 
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var user = await userLogic.UpdateUserAsync(userID, firstName, lastName, oldPassword, newPassword);
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var user = await userController.UpdateUserAsync(userID, firstName, lastName, oldPassword, newPassword);
 
                                 System.Console.WriteLine($"Ажуриран корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -133,8 +130,8 @@ namespace EBanking.Controllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var user = await userLogic.DeleteUserAsync(userID, password);
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var user = await userController.DeleteUserAsync(userID, password);
                                 
                                 System.Console.WriteLine($"Обрисан корисник: '{user}'. (притисните било који тастер за наставак)");
 
@@ -169,8 +166,8 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var user = await userLogic.FindUserAsync(userID);
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var user = await userController.ReadUserAsync(userID);
 
                                 System.Console.WriteLine($"Корисник: '{user}'. (притисните било који тастер за наставак)");
 
@@ -179,8 +176,8 @@ namespace EBanking.Controllers
                             }
                         case "5":
                             {
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var users = await userLogic.GetAllUsersAsync();
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var users = await userController.ReadAllUsersAsync();
 
                                 ConsoleTableBuilder
                                     .From(users)
@@ -219,8 +216,8 @@ namespace EBanking.Controllers
 
                                 if (exitRequested == true)
                                     break;
-                                var userLogic = ServiceProvider.GetRequiredService<IUserLogic>();
-                                var accounts = await userLogic.GetAccountsByUser(userID);
+                                var userController = ServiceProvider.GetRequiredService<UserController>();
+                                var accounts = await userController.ReadAllAccountsOfUserAsync(userID);
 
                                 var tableRawData = accounts.Select(x => new
                                 {
@@ -258,8 +255,7 @@ namespace EBanking.Controllers
                 }
             }
         }
-
-        void ShowUserMenu()
+        static void ShowUserMenu()
         {
             System.Console.Clear();
             System.Console.WriteLine("1. Додај");
@@ -271,7 +267,6 @@ namespace EBanking.Controllers
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
         }
-
         #region Old implementation for validating data
 
         //void ValidateUserData(User newUser)

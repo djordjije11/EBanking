@@ -2,7 +2,7 @@
 
 namespace EBanking.DataAccessLayer.Interfaces
 {
-    public interface IAccountBroker
+    public interface IAccountBroker : IBroker
     {
         Task<Account> CreateAccountAsync(Account account);
         Task<Account> UpdateAccountByIdAsync(Account account);

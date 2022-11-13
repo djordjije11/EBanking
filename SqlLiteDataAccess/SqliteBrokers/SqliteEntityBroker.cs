@@ -1,13 +1,43 @@
-﻿using EBanking.Models;
+﻿using EBanking.DataAccessLayer.Interfaces;
+using EBanking.Models;
 using SqliteDataAccess.SqliteConnectors;
 using SqliteDataAccess.SqliteModels;
 using System.Data.SQLite;
 
 namespace SqliteDataAccess.SqliteBrokers
 {
-    public abstract class SqliteEntityBroker
+    public abstract class SqliteEntityBroker : IBroker
     {
         protected readonly SqliteConnector connector = SqliteConnector.GetInstance();
+        public async Task StartConnectionAsync()
+        {
+            await connector.StartConnectionAsync();
+        }
+        public async Task StartTransactionAsync()
+        {
+            await connector.StartTransactionAsync();
+        }
+        public void StartCommand()
+        {
+            connector.StartCommand();
+        }
+        public async Task CommitTransactionAsync()
+        {
+            await connector.CommitTransactionAsync();
+        }
+        public async Task RollbackTransactionAsync()
+        {
+            await connector.RollbackTransactionAsync();
+        }
+        public async Task EndConnectionAsync()
+        {
+            await connector.EndConnectionAsync();
+        }
+        public bool IsConnected() => connector.IsConnected();
+        public string GetBrokerName()
+        {
+            return "SQLite";
+        }
         protected async Task<IEntity> CreateEntityAsync(SqliteEntity sqliteEntity)
         {
             IEntity entity = sqliteEntity.Entity;

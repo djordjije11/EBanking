@@ -7,10 +7,10 @@ namespace EBanking.BusinessLayer
 {
     public class CurrencyLogic : ICurrencyLogic
     {
-        IBroker Broker { get; }
-        public CurrencyLogic(IBroker broker)
+        ICurrencyBroker CurrencyBroker { get; }
+        public CurrencyLogic(ICurrencyBroker currencyBroker)
         {
-            Broker = broker;
+            CurrencyBroker = currencyBroker;
         }
         public async Task<Currency> AddCurrencyAsync(string name, string code)
         {
@@ -24,48 +24,47 @@ namespace EBanking.BusinessLayer
                 throw new Exception(resultInfo.GetErrorsString());
             try
             {
-                await Broker.StartConnectionAsync();
-                await Broker.StartTransactionAsync();
-                var currencyFromDB = await Broker.CreateCurrencyAsync(newCurrency);
-                await Broker.CommitTransactionAsync();
+                await CurrencyBroker.StartConnectionAsync();
+                await CurrencyBroker.StartTransactionAsync();
+                var currencyFromDB = await CurrencyBroker.CreateCurrencyAsync(newCurrency);
+                await CurrencyBroker.CommitTransactionAsync();
                 return currencyFromDB;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await CurrencyBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await CurrencyBroker.EndConnectionAsync();
             }
         }
-
         public async Task<Currency> FindCurrencyAsync(int currencyId)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var currency = await Broker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
+                await CurrencyBroker.StartConnectionAsync();
+                var currency = await CurrencyBroker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
                 if (currency == null)
                     throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађена.");
                 return currency;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await CurrencyBroker.EndConnectionAsync();
             }
         }
         public async Task<List<Currency>> GetAllCurrenciesAsync()
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                return await Broker.GetAllCurrenciesAsync(new Currency());
+                await CurrencyBroker.StartConnectionAsync();
+                return await CurrencyBroker.GetAllCurrenciesAsync(new Currency());
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await CurrencyBroker.EndConnectionAsync();
             }
         }
         public async Task<Currency> RemoveCurrencyAsync(int currencyId)
@@ -73,31 +72,31 @@ namespace EBanking.BusinessLayer
             var currency = new Currency() { Id = currencyId };
             try
             {
-                await Broker.StartConnectionAsync();
-                var accounts = await Broker.GetAllAccountsByCurrencyAsync(currency);
+                await CurrencyBroker.StartConnectionAsync();
+                var accounts = await CurrencyBroker.GetAllAccountsByCurrencyAsync(currency);
                 if (accounts != null && accounts.Count > 0)
                     throw new Exception("Не сме се обрисати валута коју користе рачуни.");
-                await Broker.StartTransactionAsync();
-                var deletedCurrency = await Broker.DeleteCurrencyAsync(currency);
-                await Broker.CommitTransactionAsync();
+                await CurrencyBroker.StartTransactionAsync();
+                var deletedCurrency = await CurrencyBroker.DeleteCurrencyAsync(currency);
+                await CurrencyBroker.CommitTransactionAsync();
                 return deletedCurrency;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await CurrencyBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await CurrencyBroker.EndConnectionAsync();
             }
         }
         public async Task<Currency> UpdateCurrencyAsync(int currencyId, string name, string code)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var currency = await Broker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
+                await CurrencyBroker.StartConnectionAsync();
+                var currency = await CurrencyBroker.GetCurrencyByIdAsync(new Currency() { Id = currencyId });
                 if (currency == null)
                     throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађена.");
                 currency.Name = name;
@@ -107,19 +106,19 @@ namespace EBanking.BusinessLayer
                 if (resultInfo.IsValid == false)
                     throw new Exception(resultInfo.GetErrorsString());
 
-                await Broker.StartTransactionAsync();
-                var updatedCurrency = await Broker.UpdateCurrencyByIdAsync(currency);
-                await Broker.CommitTransactionAsync();
+                await CurrencyBroker.StartTransactionAsync();
+                var updatedCurrency = await CurrencyBroker.UpdateCurrencyByIdAsync(currency);
+                await CurrencyBroker.CommitTransactionAsync();
                 return updatedCurrency;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await CurrencyBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await CurrencyBroker.EndConnectionAsync();
             }
         }
     }

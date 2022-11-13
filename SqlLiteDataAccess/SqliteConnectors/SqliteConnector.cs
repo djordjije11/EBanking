@@ -44,7 +44,6 @@ namespace SqliteDataAccess.SqliteConnectors
                 await transaction.RollbackAsync();
             transaction = null;
         }
-
         public void StartCommand()
         {
             command = connection.CreateCommand();

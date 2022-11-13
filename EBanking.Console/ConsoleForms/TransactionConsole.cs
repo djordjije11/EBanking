@@ -1,18 +1,15 @@
 ﻿using ConsoleTableExt;
-using EBanking.BusinessLayer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.Controllers
+namespace EBanking.ConsoleForms
 {
-    public class TransactionController
+    public class TransactionConsole
     {
-        public TransactionController(IServiceProvider serviceProvider)
+        public TransactionConsole(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
         }
-
         public IServiceProvider ServiceProvider { get; }
-
         public async Task Start()
         {
             var goBackRequested = false;
@@ -109,8 +106,8 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
-                                var transaction = await transactionLogic.AddTransactionAsync(amount, DateTime.Now, fromAccountNumber, toAccountNumber);
+                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
+                                var transaction = await transactionController.CreateTransactionAsync(amount, DateTime.Now, fromAccountNumber, toAccountNumber);
 
                                 System.Console.WriteLine($"Додата нова трансакција: '{transaction}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -145,8 +142,8 @@ namespace EBanking.Controllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
-                                var transaction = await transactionLogic.FindTransactionAsync(transactionID);
+                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
+                                var transaction = await transactionController.ReadTransactionAsync(transactionID);
 
                                 System.Console.WriteLine($"Трансакција: '{transaction}'. (притисните било који тастер за наставак)");
 
@@ -155,8 +152,8 @@ namespace EBanking.Controllers
                             }
                         case "3":
                             {
-                                var transactionLogic = ServiceProvider.GetRequiredService<ITransactionLogic>();
-                                var transactions = await transactionLogic.GetAllTransactionsAsync();
+                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
+                                var transactions = await transactionController.ReadAllTransactionsAsync();
 
                                 //var tableRawData = transactions.Select(x => new
                                 //{
@@ -201,7 +198,7 @@ namespace EBanking.Controllers
                 }
             }
         }
-        void ShowTransactionMenu()
+        static void ShowTransactionMenu()
         {
             System.Console.Clear();
             System.Console.WriteLine("1. Додај");

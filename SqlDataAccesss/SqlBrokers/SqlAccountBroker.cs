@@ -19,17 +19,14 @@ namespace EBanking.SqlDataAccess.SqlBrokers
         {
             return (Account)(await DeleteEntityAsync(new SqlAccount(account)));
         }
-
         public async Task<Account?> GetAccountByIdAsync(Account account)
         {
             return (await GetEntityByIdAsync(new SqlAccount(account))) as Account;
         }
-
         public async Task<List<Account>> GetAllAccountsAsync(Account account)
         {
             return EntitiesConverter<Account>.ConvertList(await GetAllEntitiesAsync(new SqlAccount(account)));
         }
-
         public async Task<List<Transaction>> GetTransactionsByAccountAsync(Account account)
         {
             SqlAccount sqlAccount = new SqlAccount(account);

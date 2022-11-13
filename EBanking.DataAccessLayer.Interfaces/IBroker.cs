@@ -1,7 +1,7 @@
 ﻿
 namespace EBanking.DataAccessLayer.Interfaces
 {
-    public interface IBroker : IUserBroker, ICurrencyBroker, IAccountBroker, ITransactionBroker
+    public interface IBroker
     {
         string GetBrokerName();
         Task StartConnectionAsync();

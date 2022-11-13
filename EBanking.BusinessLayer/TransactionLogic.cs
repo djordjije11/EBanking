@@ -7,21 +7,22 @@ namespace EBanking.BusinessLayer
 {
     public class TransactionLogic : ITransactionLogic
     {
-        IBroker Broker { get; }
-        public TransactionLogic(IBroker broker)
+        ITransactionBroker TransactionBroker { get; }
+        IAccountBroker AccountBroker { get; }
+        public TransactionLogic(ITransactionBroker transactionBroker, IAccountBroker accountBroker)
         {
-            Broker = broker;
+            TransactionBroker = transactionBroker;
+            AccountBroker = accountBroker;
         }
-
         public async Task<Transaction> AddTransactionAsync(decimal amount, DateTime date, string fromAccountNumber, string toAccountNumber)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                Account? fromAccount = await Broker.GetAccountByNumber(new Account() { Number = fromAccountNumber });
+                await TransactionBroker.StartConnectionAsync();
+                Account? fromAccount = await AccountBroker.GetAccountByNumber(new Account() { Number = fromAccountNumber });
                 if (fromAccount == null)
                     throw new Exception($"Рачун са бројем: '{fromAccountNumber}' није пронађен.");
-                Account? toAccount = await Broker.GetAccountByNumber(new Account() { Number = toAccountNumber });
+                Account? toAccount = await AccountBroker.GetAccountByNumber(new Account() { Number = toAccountNumber });
                 if (toAccount == null)
                     throw new Exception($"Рачун са бројем: '{toAccountNumber}' није пронађен.");
                 if (fromAccount.Status == AccountStatus.INACTIVE || toAccount.Status == AccountStatus.INACTIVE)
@@ -32,47 +33,46 @@ namespace EBanking.BusinessLayer
                 var resultInfo = new TransactionValidator(transaction).Validate();
                 if (resultInfo.IsValid == false)
                     throw new Exception(resultInfo.GetErrorsString());
-                await Broker.StartTransactionAsync();
-                var createdTransaction = await Broker.CreateTransactionAsync(transaction);
-                await Broker.CommitTransactionAsync();
+                await TransactionBroker.StartTransactionAsync();
+                var createdTransaction = await TransactionBroker.CreateTransactionAsync(transaction);
+                await TransactionBroker.CommitTransactionAsync();
                 return createdTransaction;
             }
             catch
             {
-                await Broker.RollbackTransactionAsync();
+                await TransactionBroker.RollbackTransactionAsync();
                 throw;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await TransactionBroker.EndConnectionAsync();
             }
         }
         public async Task<Transaction> FindTransactionAsync(int transactionId)
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                var transaction = await Broker.GetTransactionByIdAsync(new Transaction() { Id = transactionId});
+                await TransactionBroker.StartConnectionAsync();
+                var transaction = await TransactionBroker.GetTransactionByIdAsync(new Transaction() { Id = transactionId});
                 if (transaction == null)
                     throw new Exception($"Трансакција са идентификатором: '{transactionId}' није пронађена.");
                 return transaction;
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await TransactionBroker.EndConnectionAsync();
             }
         }
-
         public async Task<List<Transaction>> GetAllTransactionsAsync()
         {
             try
             {
-                await Broker.StartConnectionAsync();
-                return await Broker.GetAllTransactionsAsync(new Transaction());
+                await TransactionBroker.StartConnectionAsync();
+                return await TransactionBroker.GetAllTransactionsAsync(new Transaction());
             }
             finally
             {
-                await Broker.EndConnectionAsync();
+                await TransactionBroker.EndConnectionAsync();
             }
         }
     }

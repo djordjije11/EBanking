@@ -2,7 +2,7 @@
 
 namespace EBanking.DataAccessLayer.Interfaces
 {
-    public interface ICurrencyBroker
+    public interface ICurrencyBroker : IBroker
     {
         Task<Currency> CreateCurrencyAsync(Currency currency);
         Task<Currency> UpdateCurrencyByIdAsync(Currency currency);

@@ -11,6 +11,6 @@ namespace EBanking.BusinessLayer.Interfaces
         Task<User> DeleteUserAsync(int userId, string password);
         Task<User> FindUserAsync(int userId);
         Task<List<User>> GetAllUsersAsync();
-        Task<List<Account>> GetAccountsByUser(int userId);
+        Task<List<Account>> GetAccountsByUserAsync(int userId);
     }
 }

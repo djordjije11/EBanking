@@ -1,12 +1,12 @@
-﻿using EBanking.Controllers;
+﻿using EBanking.ConsoleForms;
 using EBanking.DataAccessLayer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using SqlDataAccesss.SqlBrokers;
+using EBanking.SqlDataAccess.SqlBrokers;
+using SqliteDataAccess.SqliteBrokers;
 using EBanking.BusinessLayer.Interfaces;
 using EBanking.BusinessLayer;
-using SqliteDataAccess.SqliteBrokers;
 
 namespace EBanking.Console.Common
 {
@@ -36,19 +36,18 @@ namespace EBanking.Console.Common
             {
                 case "SQL":
                     {
-                        /*
                         services.AddTransient<IAccountBroker, SqlAccountBroker>();
                         services.AddTransient<IUserBroker, SqlUserBroker>();
                         services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
                         services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
-                        */
-                        services.AddTransient<IBroker, SqlBroker>();
                         break;
                     }
                 case "SQLITE":
                     {
-                        //services.AddTransient<IAccountBroker, SqliteAccountBroker>();
-                        services.AddTransient<IBroker, SqliteBroker>();
+                        services.AddTransient<IAccountBroker, SqliteAccountBroker>();
+                        services.AddTransient<IUserBroker, SqliteUserBroker>();
+                        services.AddTransient<ITransactionBroker, SqliteTransactionBroker>();
+                        services.AddTransient<ICurrencyBroker, SqliteCurrencyBroker>();
                         break;
                     }
                 default:
@@ -59,11 +58,17 @@ namespace EBanking.Console.Common
 
             //services.AddSingleton<ILogger, TextLogger>();
             //services.AddSingleton<UserManager, UserManager>();
-            services.AddSingleton<MainController, MainController>();
+            services.AddSingleton<MainConsole, MainConsole>();
+            services.AddSingleton<UserConsole, UserConsole>();
+            services.AddSingleton<AccountConsole, AccountConsole>();
+            services.AddSingleton<CurrencyConsole, CurrencyConsole>();
+            services.AddSingleton<TransactionConsole, TransactionConsole>();
             services.AddSingleton<UserController, UserController>();
-            services.AddSingleton<AccountController>();
-            services.AddSingleton<CurrencyController>();
-            services.AddSingleton<TransactionController>();
+            services.AddSingleton<AccountController, AccountController>();
+            services.AddSingleton<CurrencyController, CurrencyController>();
+            services.AddSingleton<TransactionController, TransactionController>();
+
+
             services.AddTransient<IUserLogic, UserLogic>();
             services.AddTransient<IAccountLogic, AccountLogic>();
             services.AddTransient<ICurrencyLogic, CurrencyLogic>();

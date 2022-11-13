@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EBanking.AppControllers\EBanking.AppControllers.csproj" />
     <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
     <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
     <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />

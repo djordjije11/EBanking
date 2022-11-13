@@ -1,16 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.Controllers
+namespace EBanking.ConsoleForms
 {
-    public class MainController
+    public class MainConsole
     {
-        public MainController(IServiceProvider serviceProvider)
+        public MainConsole(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
         }
-
         public IServiceProvider ServiceProvider { get;  }
-
         public async Task Start()
         {
             while (true)
@@ -30,22 +28,22 @@ namespace EBanking.Controllers
                             }
                         case "1":
                             {
-                                await ServiceProvider.GetRequiredService<UserController>().Start();
+                                await ServiceProvider.GetRequiredService<UserConsole>().Start();
                                 break;
                             }
                         case "2":
                             {
-                                await ServiceProvider.GetRequiredService<AccountController>().Start();
+                                await ServiceProvider.GetRequiredService<AccountConsole>().Start();
                                 break;
                             }
                         case "3":
                             {
-                                await ServiceProvider.GetRequiredService<TransactionController>().Start();
+                                await ServiceProvider.GetRequiredService<TransactionConsole>().Start();
                                 break;
                             }
                         case "4":
                             {
-                                await ServiceProvider.GetRequiredService<CurrencyController>().Start();
+                                await ServiceProvider.GetRequiredService<CurrencyConsole>().Start();
                                 break;
                             }
                         //case "5":
@@ -85,8 +83,7 @@ namespace EBanking.Controllers
                 }
             }
         }
-
-        void ShowMainMenu()
+        static void ShowMainMenu()
         {
             System.Console.Clear();
             System.Console.WriteLine("1. Корисници");

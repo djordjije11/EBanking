@@ -20,17 +20,14 @@ namespace SqliteDataAccess.SqliteBrokers
         {
             return (Account)(await DeleteEntityAsync(new SqliteAccount(account)));
         }
-
         public async Task<Account?> GetAccountByIdAsync(Account account)
         {
             return (await GetEntityByIdAsync(new SqliteAccount(account))) as Account;
         }
-
         public async Task<List<Account>> GetAllAccountsAsync(Account account)
         {
             return EntitiesConverter<Account>.ConvertList(await GetAllEntitiesAsync(new SqliteAccount(account)));
         }
-
         public async Task<List<Transaction>> GetTransactionsByAccountAsync(Account account)
         {
             SqliteAccount sqlAccount = new SqliteAccount(account);
