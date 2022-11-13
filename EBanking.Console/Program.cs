@@ -1,5 +1,5 @@
 ﻿using EBanking.Console.Common;
-using EBanking.ConsoleForms;
+using EBanking.AppControllers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 
@@ -7,7 +7,6 @@ using System.Text;
 Console.OutputEncoding = Encoding.Unicode;
 Console.InputEncoding = Encoding.Unicode;
 // Umesto VARCHAR smo u DDL-u za Ime i prezime stavili NVARCHAR da bi sql server mogao da cuva cirilicne karaktere
-
 
 new TextBuilder().AddText("Одаберите опцију за приступање бази:").AddBullet("SQL").AddBullet("SQLite").Build();
 var databaseType = Console.ReadLine();

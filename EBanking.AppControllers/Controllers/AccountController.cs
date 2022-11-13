@@ -1,9 +1,8 @@
-﻿using EBanking.BusinessLayer;
-using EBanking.BusinessLayer.Interfaces;
+﻿using EBanking.BusinessLayer.Interfaces;
 using EBanking.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.ConsoleForms
+namespace EBanking.AppControllers
 {
     public class AccountController
     {

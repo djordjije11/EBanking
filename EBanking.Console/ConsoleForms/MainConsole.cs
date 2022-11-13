@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.ConsoleForms
+namespace EBanking.AppControllers
 {
     public class MainConsole
     {

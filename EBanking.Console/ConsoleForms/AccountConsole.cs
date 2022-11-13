@@ -2,7 +2,7 @@
 using EBanking.Console.Common;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EBanking.ConsoleForms
+namespace EBanking.AppControllers
 {
     public class AccountConsole
     {
