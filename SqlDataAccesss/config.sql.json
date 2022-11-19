@@ -1,0 +1,3 @@
+{
+  "ConnectionString": "Data Source=DESKTOP-A2R6AE6\\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+}

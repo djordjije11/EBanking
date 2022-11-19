@@ -2,15 +2,18 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
     public class UserLogic : IUserLogic
     {
         IUserBroker UserBroker { get; }
-        public UserLogic(IUserBroker userBroker)
+        public IServiceProvider ServiceProvider { get; }
+        public UserLogic(IServiceProvider serviceProvider)
         {
-            UserBroker = userBroker;
+            ServiceProvider = serviceProvider;
+            UserBroker = serviceProvider.GetRequiredService<IUserBroker>();
         }
         public async Task<User> AddUserAsync(string firstName, string lastName, string email, string password)
         {

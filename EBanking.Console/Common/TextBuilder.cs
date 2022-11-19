@@ -32,29 +32,61 @@ new TextBuilder().AddText("1")
 
 Console.ReadLine();
 */
-
-
+    internal class Document
+    {
+        private string Text { get; set; }
+        public Document() { Text = string.Empty; }
+        public Document AddParagraph(Paragraph paragraph)
+        {
+            Text += paragraph.Text;
+            return this;
+        }
+        public override string ToString() => Text;
+    }
+    internal class Paragraph
+    {
+        public string Text { get; set; }
+        public Paragraph(string text)
+        {
+            Text = text;
+        }
+        public Paragraph() { }
+    }
 
     internal class TextBuilder
     {
-        public string Text { get; set; }
+        public Paragraph Paragraph { get; set; }
+        //public string BulletString { get; set; }
 
-        public TextBuilder() { Text = string.Empty; }
+        public TextBuilder() { Paragraph = new(); /*BulletString = string.Empty;*/ }
         public TextBuilder AddText(string text)
         {
-            Text += text;
+            Paragraph.Text += text;
+            return this;
+        }
+        public TextBuilder AddCenterText(string text)
+        {
+            Paragraph.Text += $"\t{text}";
             return this;
         }
         public TextBuilder AddBullet(string text)
         {
-            Text += $"\n\t* {text}";
+            //BulletString += "\t";
+            //Text += $"\n{BulletString}* {text}";
+            Paragraph.Text += $"\n\t* {text}";
             return this;
         }
-        public TextBuilder Build()
+        public Paragraph Build()
         {
-            System.Console.WriteLine(Text);
-            Text = string.Empty;
-            return this;
+            //BulletString.Remove(BulletString.Length - 2);
+
+            var paragraph = new Paragraph(Paragraph.Text + "\n");
+            Paragraph = new();
+            return paragraph;
+
+            //System.Console.WriteLine(Text);
+            //Text = string.Empty;
+            //return this;
         }
     }
 }

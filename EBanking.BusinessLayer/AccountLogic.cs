@@ -2,6 +2,7 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validation.Validators;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
@@ -10,11 +11,13 @@ namespace EBanking.BusinessLayer
         IAccountBroker AccountBroker { get; }
         IUserBroker UserBroker { get; }
         ICurrencyBroker CurrencyBroker { get; }
-        public AccountLogic(IAccountBroker accountBroker, IUserBroker userBroker, ICurrencyBroker currencyBroker)
+        public IServiceProvider ServiceProvider { get; }
+        public AccountLogic(IServiceProvider serviceProvider)
         {
-            AccountBroker = accountBroker;
-            UserBroker = userBroker;
-            CurrencyBroker = currencyBroker;
+            ServiceProvider = serviceProvider;
+            AccountBroker = ServiceProvider.GetRequiredService<IAccountBroker>();
+            UserBroker = ServiceProvider.GetRequiredService<IUserBroker>();
+            CurrencyBroker = ServiceProvider.GetRequiredService<ICurrencyBroker>();
         }
         public async Task<Account> AddAccountAsync(int userId, int currencyId)
         {

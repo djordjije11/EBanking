@@ -2,16 +2,20 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validation.Validators;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
     public class CurrencyLogic : ICurrencyLogic
     {
         ICurrencyBroker CurrencyBroker { get; }
-        public CurrencyLogic(ICurrencyBroker currencyBroker)
+        public IServiceProvider ServiceProvider { get; }
+        public CurrencyLogic(IServiceProvider serviceProvider)
         {
-            CurrencyBroker = currencyBroker;
+            ServiceProvider = serviceProvider;
+            CurrencyBroker = ServiceProvider.GetRequiredService<ICurrencyBroker>();
         }
+
         public async Task<Currency> AddCurrencyAsync(string name, string code)
         {
             var newCurrency = new Currency()

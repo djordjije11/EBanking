@@ -8,6 +8,9 @@ namespace SqliteDataAccess.SqliteBrokers
 {
     public class SqliteAccountBroker : SqliteEntityBroker, IAccountBroker
     {
+        public SqliteAccountBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
         public async Task<Account> CreateAccountAsync(Account account)
         {
             return (Account)(await CreateEntityAsync(new SqliteAccount(account)));

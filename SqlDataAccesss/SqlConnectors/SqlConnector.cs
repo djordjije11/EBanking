@@ -1,4 +1,6 @@
-﻿using EBanking.DataAccessLayer.Interfaces;
+﻿using EBanking.ConfigurationManager.Interfaces;
+using EBanking.DataAccessLayer.Interfaces;
+using EBanking.Models;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -6,16 +8,29 @@ namespace EBanking.SqlDataAccess.SqlConnectors
 {
     public class SqlConnector : IConnector
     {
+        /*
         private const string CONNECTION_STRING =
             @"Data Source=DESKTOP-A2R6AE6\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        */
+        public IConfigurationManager ConfigurationManager { get; }
+        public ILogger Logger { get; }
         private readonly SqlConnection connection;
         private SqlTransaction? transaction;
         private SqlCommand? command;
-        private static SqlConnector connector;
+        //private static SqlConnector connector;
+        public SqlConnector(IConfigurationManager configurationManager, ILogger logger)
+        {
+            ConfigurationManager = configurationManager;
+            Logger = logger;
+            connection = new SqlConnection(ConfigurationManager.GetConfigParam(ConfigParamKeys.CONNECTION_STRING));
+        }
+        /*
         private SqlConnector()
         {
             connection = new SqlConnection(CONNECTION_STRING);
         }
+        */
+        /*
         public static SqlConnector GetInstance()
         {
             if(connector == null)
@@ -24,6 +39,7 @@ namespace EBanking.SqlDataAccess.SqlConnectors
             }
             return connector;
         }
+        */
         public async Task StartConnectionAsync()
         {
             await connection.OpenAsync();
@@ -56,7 +72,7 @@ namespace EBanking.SqlDataAccess.SqlConnectors
         }
         public bool IsConnected() => connection.State == ConnectionState.Open;
         public SqlConnection GetConnection() => connection;
-        public SqlTransaction GetTransaction() => transaction;
-        public SqlCommand GetCommand() => command;
+        public SqlTransaction? GetTransaction() => transaction;
+        public SqlCommand? GetCommand() => command;
     }
 }

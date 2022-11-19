@@ -7,6 +7,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
 {
     public class SqlUserBroker : SqlEntityBroker, IUserBroker
     {
+        public SqlUserBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
         public async Task<User> CreateUserAsync(User user)
         {
             return (User)(await CreateEntityAsync(new SqlUser(user)));

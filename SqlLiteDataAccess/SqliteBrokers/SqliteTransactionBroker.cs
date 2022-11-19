@@ -7,6 +7,9 @@ namespace SqliteDataAccess.SqliteBrokers
 {
     public class SqliteTransactionBroker : SqliteEntityBroker, ITransactionBroker
     {
+        public SqliteTransactionBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
         public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
         {
             return (Transaction)(await CreateEntityAsync(new SqliteTransaction(transaction)));

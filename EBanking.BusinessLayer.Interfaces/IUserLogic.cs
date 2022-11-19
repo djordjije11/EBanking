@@ -1,6 +1,4 @@
-﻿
-
-using EBanking.Models;
+﻿using EBanking.Models;
 
 namespace EBanking.BusinessLayer.Interfaces
 {

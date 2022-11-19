@@ -1,7 +1,4 @@
-﻿
-using System.Text.RegularExpressions;
-
-namespace FluentValidation
+﻿namespace FluentValidation
 {
     public class RuleBuilder<TProperty> : IRuleBuilder<TProperty>
     {
@@ -63,6 +60,4 @@ namespace FluentValidation
             return this;
         }
     }
-
-
 }

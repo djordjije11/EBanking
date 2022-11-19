@@ -7,6 +7,12 @@ using EBanking.SqlDataAccess.SqlBrokers;
 using SqliteDataAccess.SqliteBrokers;
 using EBanking.BusinessLayer.Interfaces;
 using EBanking.BusinessLayer;
+using EBanking.ConfigurationManager.Interfaces;
+using EBanking.ConfigurationManager;
+using System.Data.SqlClient;
+using EBanking.SqlDataAccess.SqlConnectors;
+using SqliteDataAccess.SqliteConnectors;
+using EBanking.Models;
 
 namespace EBanking.Console.Common
 {
@@ -31,6 +37,7 @@ namespace EBanking.Console.Common
         public static ServiceProvider CreateServiceProvider(string databaseType)
         {
             var services = new ServiceCollection();
+            var filePath = string.Empty;
 
             switch (databaseType.ToUpper())
             {
@@ -40,6 +47,8 @@ namespace EBanking.Console.Common
                         services.AddTransient<IUserBroker, SqlUserBroker>();
                         services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
                         services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
+                        services.AddSingleton<IConnector, SqlConnector>();
+                        filePath = "D:\\MyDocs\\Repositories\\EBanking App\\SqlDataAccesss\\config.sql.json";
                         break;
                     }
                 case "SQLITE":
@@ -48,6 +57,8 @@ namespace EBanking.Console.Common
                         services.AddTransient<IUserBroker, SqliteUserBroker>();
                         services.AddTransient<ITransactionBroker, SqliteTransactionBroker>();
                         services.AddTransient<ICurrencyBroker, SqliteCurrencyBroker>();
+                        services.AddSingleton<IConnector, SqliteConnector>();
+                        filePath = "D:\\MyDocs\\Repositories\\EBanking App\\SqlLiteDataAccess\\config.sqlite.json";
                         break;
                     }
                 default:
@@ -56,23 +67,31 @@ namespace EBanking.Console.Common
                     }
             }
 
-            //services.AddSingleton<ILogger, TextLogger>();
+            services.AddSingleton<ILogger, TextLogger>();
             //services.AddSingleton<UserManager, UserManager>();
             services.AddSingleton<MainConsole, MainConsole>();
             services.AddSingleton<UserConsole, UserConsole>();
             services.AddSingleton<AccountConsole, AccountConsole>();
             services.AddSingleton<CurrencyConsole, CurrencyConsole>();
             services.AddSingleton<TransactionConsole, TransactionConsole>();
+            
+            
+            //ovaj deo ce se inicijalizovati na serverskoj strani kada bude razdvojeno na klijent-server arhitekturu, trenutno je ovde na klijentskoj strani
             services.AddSingleton<UserController, UserController>();
             services.AddSingleton<AccountController, AccountController>();
             services.AddSingleton<CurrencyController, CurrencyController>();
             services.AddSingleton<TransactionController, TransactionController>();
-
-
             services.AddTransient<IUserLogic, UserLogic>();
             services.AddTransient<IAccountLogic, AccountLogic>();
             services.AddTransient<ICurrencyLogic, CurrencyLogic>();
             services.AddTransient<ITransactionLogic, TransactionLogic>();
+
+            services.AddSingleton<IConfigurationManager>(_ =>
+            {
+                var configurationManager = new JsonFileConfigurationManager();
+                configurationManager.Initialize(filePath);
+                return configurationManager;
+            });
 
             return services.BuildServiceProvider();
         }
