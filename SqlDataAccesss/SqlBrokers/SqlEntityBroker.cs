@@ -82,7 +82,6 @@ namespace EBanking.SqlDataAccess.SqlBrokers
         }
         protected async Task<IEntity?> GetEntityByIdAsync(SqlEntity sqlEntity)
         {
-            IEntity entity = sqlEntity.Entity;
             connector.StartCommand();
             SqlCommand command = connector.GetCommand();
             sqlEntity.SetSqlSelectByIdCommand(command);
@@ -97,7 +96,6 @@ namespace EBanking.SqlDataAccess.SqlBrokers
         }
         protected async Task<List<IEntity>> GetAllEntitiesAsync(SqlEntity sqlEntity)
         {
-            IEntity entity = sqlEntity.Entity;
             var entities = new List<IEntity>();
             connector.StartCommand();
             var command = connector.GetCommand();

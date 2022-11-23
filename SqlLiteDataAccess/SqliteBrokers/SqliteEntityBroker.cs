@@ -82,7 +82,6 @@ namespace SqliteDataAccess.SqliteBrokers
         }
         protected async Task<IEntity?> GetEntityByIdAsync(SqliteEntity sqliteEntity)
         {
-            IEntity entity = sqliteEntity.Entity;
             connector.StartCommand();
             SQLiteCommand command = connector.GetCommand();
             sqliteEntity.SetSqliteSelectByIdCommand(command);
@@ -97,7 +96,6 @@ namespace SqliteDataAccess.SqliteBrokers
         }
         protected async Task<List<IEntity>> GetAllEntitiesAsync(SqliteEntity sqliteEntity)
         {
-            IEntity entity = sqliteEntity.Entity;
             var entities = new List<IEntity>();
             connector.StartCommand();
             var command = connector.GetCommand();
