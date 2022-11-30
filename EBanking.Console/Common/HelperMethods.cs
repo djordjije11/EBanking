@@ -93,6 +93,8 @@ namespace EBanking.Console.Common
                 return configurationManager;
             });
 
+            services.AddTransient<HttpClient>();
+
             return services.BuildServiceProvider();
         }
     }

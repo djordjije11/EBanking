@@ -1,6 +1,4 @@
-﻿using System.Data.SqlClient;
-
-namespace EBanking.Models
+﻿namespace EBanking.Models
 {
     public interface IEntity
     {

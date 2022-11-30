@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="config.sql.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="config.sql.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
+    <ProjectReference Include="..\SqlDataAccesss\SqlDataAccesss.csproj" />
+  </ItemGroup>
+
+</Project>
