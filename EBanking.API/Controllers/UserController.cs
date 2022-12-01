@@ -2,6 +2,7 @@
 using EBanking.Models;
 using EBanking.Models.ModelsDto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -23,6 +24,9 @@ namespace EBanking.API.Controllers
             return await UserLogic.GetAllUsersAsync();
         }
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAsync(int id)
         {
             try
@@ -38,6 +42,9 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpGet("{id}/Accounts")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Account>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAccountsAsync(int id)
         {
             try
@@ -53,6 +60,9 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(User user)
         {
             if (user == null)
@@ -62,18 +72,21 @@ namespace EBanking.API.Controllers
                 var createdUser = await UserLogic.AddUserAsync(user.FirstName, user.LastName, user.Email, user.Password);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(createdUser);
+                //return Ok(createdUser);
+                return Created(new Uri(Request.GetEncodedUrl() + "/" + createdUser.Id), createdUser);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete]
-        public async Task<IActionResult> Delete([FromQuery] int id, [FromBody] UserDto userDto)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id, [FromBody] UserDto userDto)
         {
+            /*
             if (userDto == null)
                 return BadRequest();
+            */
             try
             {
                 var deletedUser = await UserLogic.DeleteUserAsync(id, userDto.Password);
@@ -86,14 +99,14 @@ namespace EBanking.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPut]
-        public async Task<IActionResult> Update(UserDto userDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UserDto userDto)
         {
             if (userDto == null)
                 return BadRequest();
             try
             {
-                var updatedUser = await UserLogic.UpdateUserAsync(userDto.Id, userDto.FirstName, userDto.LastName, userDto.OldPassword, userDto.Password);
+                var updatedUser = await UserLogic.UpdateUserAsync(id, userDto.FirstName, userDto.LastName, userDto.OldPassword, userDto.Password);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 return Ok(updatedUser);

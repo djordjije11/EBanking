@@ -114,12 +114,13 @@ namespace EBanking.AppControllers
                                 string newPassword = System.Console.ReadLine() ?? "";
 
                                 /*
+                                 * QUERY-iji SE KORISTE SAMO ZA GET ZAHTEVE
                                 var parameters = new Dictionary<string, string?> { { "id", userID.ToString() }, { "firstname", firstName }, { "lastname", lastName }, { "oldPassword", oldPassword }, { "newPassword", newPassword } };
                                 var encodedContent = new FormUrlEncodedContent(parameters);
                                 var response = await client.PutAsync(url, encodedContent);
                                 */
 
-                                var response = await client.PutAsJsonAsync(url, new UserDto() { Id = userID, FirstName = firstName, LastName = lastName, Password = newPassword, OldPassword = oldPassword });
+                                var response = await client.PutAsJsonAsync(url + $"/{userID}", new UserDto() { FirstName = firstName, LastName = lastName, Password = newPassword, OldPassword = oldPassword });
 
                                 var responseBody = await response.Content.ReadAsStringAsync();
                                 try
@@ -168,13 +169,16 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
+                                //new Dictionary<string, string>() { { "Password", password } }
+
                                 var request = new HttpRequestMessage
                                 {
                                     Method = HttpMethod.Delete,
-                                    RequestUri = new Uri(url + $"?id={userID}"),
+                                    RequestUri = new Uri(url + $"/{userID}"),
                                     Content = new StringContent(JsonConvert.SerializeObject(new UserDto() { Password = password }), Encoding.UTF8, "application/json")
                                 };
                                 var response = await client.SendAsync(request);
+
                                 string responseBody = await response.Content.ReadAsStringAsync();
                                 try
                                 {
