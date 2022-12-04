@@ -1,15 +1,15 @@
 ﻿using ConsoleTableExt;
-using Microsoft.Extensions.DependencyInjection;
+using EBanking.Console.HttpClients;
 
 namespace EBanking.AppControllers
 {
     public class TransactionConsole
     {
-        public TransactionConsole(IServiceProvider serviceProvider)
+        private readonly ITransactionHttpClient transactionHttpClient;
+        public TransactionConsole(ITransactionHttpClient transactionHttpClient)
         {
-            ServiceProvider = serviceProvider;
+            this.transactionHttpClient = transactionHttpClient;
         }
-        public IServiceProvider ServiceProvider { get; }
         public async Task Start()
         {
             var goBackRequested = false;
@@ -67,7 +67,8 @@ namespace EBanking.AppControllers
                                         exitRequested = true;
                                         break;
                                     }
-
+                                    break;
+                                    /*
                                     if (fromAccountNumber.Length == 13)
                                     {
                                         break;
@@ -76,6 +77,7 @@ namespace EBanking.AppControllers
                                     {
                                         System.Console.WriteLine("Грешка приликом уноса. Покушајте поново.");
                                     }
+                                    */
                                 }
 
                                 if (exitRequested == true)
@@ -92,7 +94,8 @@ namespace EBanking.AppControllers
                                         exitRequested = true;
                                         break;
                                     }
-
+                                    break;
+                                    /*
                                     if (toAccountNumber.Length == 13)
                                     {
                                         break;
@@ -101,13 +104,13 @@ namespace EBanking.AppControllers
                                     {
                                         System.Console.WriteLine("Грешка приликом уноса. Покушајте поново.");
                                     }
+                                    */
                                 }
 
                                 if (exitRequested == true)
                                     break;
 
-                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
-                                var transaction = await transactionController.CreateTransactionAsync(amount, DateTime.Now, fromAccountNumber, toAccountNumber);
+                                var transaction = await transactionHttpClient.PostAsync(amount, fromAccountNumber, toAccountNumber);
 
                                 System.Console.WriteLine($"Додата нова трансакција: '{transaction}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -142,8 +145,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
-                                var transaction = await transactionController.ReadTransactionAsync(transactionID);
+                                var transaction = await transactionHttpClient.GetAsync(transactionID);
 
                                 System.Console.WriteLine($"Трансакција: '{transaction}'. (притисните било који тастер за наставак)");
 
@@ -152,8 +154,7 @@ namespace EBanking.AppControllers
                             }
                         case "3":
                             {
-                                var transactionController = ServiceProvider.GetRequiredService<TransactionController>();
-                                var transactions = await transactionController.ReadAllTransactionsAsync();
+                                var transactions = (await transactionHttpClient.GetAsync())?.ToList();
 
                                 //var tableRawData = transactions.Select(x => new
                                 //{

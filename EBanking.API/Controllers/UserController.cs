@@ -51,7 +51,7 @@ namespace EBanking.API.Controllers
             {
                 var accounts = await UserLogic.GetAccountsByUserAsync(id);
                 if (!ModelState.IsValid)
-                    return BadRequest();
+                    return BadRequest(ModelState);
                 return Ok(accounts);
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(User user)
@@ -81,6 +81,8 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id, [FromBody] UserDto userDto)
         {
             /*
@@ -100,13 +102,15 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UserDto userDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Update(int id, [FromBody] UserDto userDto)
         {
             if (userDto == null)
                 return BadRequest();
             try
             {
-                var updatedUser = await UserLogic.UpdateUserAsync(id, userDto.FirstName, userDto.LastName, userDto.OldPassword, userDto.Password);
+                var updatedUser = await UserLogic.UpdateUserAsync(id, userDto.Email, userDto.OldPassword, userDto.Password);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 return Ok(updatedUser);

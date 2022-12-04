@@ -10,17 +10,14 @@
 
   <ItemGroup>
     <PackageReference Include="ConsoleTableExt" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ConfigurationManager.Interfaces\EBanking.ConfigurationManager.Interfaces.csproj" />
-    <ProjectReference Include="..\EBanking.AppControllers\EBanking.AppControllers.csproj" />
-    <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
-    <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
-    <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
-    <ProjectReference Include="..\SqlDataAccesss\SqlDataAccesss.csproj" />
-    <ProjectReference Include="..\SqlLiteDataAccess\SqliteDataAccess.csproj" />
+    <ProjectReference Include="..\EBanking.Models\EBanking.Models.csproj" />
   </ItemGroup>
 
 </Project>

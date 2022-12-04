@@ -2,7 +2,6 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validation.Validators;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
@@ -10,15 +9,14 @@ namespace EBanking.BusinessLayer
     {
         ITransactionBroker TransactionBroker { get; }
         IAccountBroker AccountBroker { get; }
-        public IServiceProvider ServiceProvider { get; }
-        public TransactionLogic(IServiceProvider serviceProvider)
+        public TransactionLogic(ITransactionBroker transactionBroker, IAccountBroker accountBroker)
         {
-            ServiceProvider = serviceProvider;
-            TransactionBroker = serviceProvider.GetRequiredService<ITransactionBroker>();
-            AccountBroker = serviceProvider.GetRequiredService<IAccountBroker>();
+            TransactionBroker = transactionBroker;
+            AccountBroker = accountBroker;
         }
-        public async Task<Transaction> AddTransactionAsync(decimal amount, DateTime date, string fromAccountNumber, string toAccountNumber)
+        public async Task<Transaction> AddTransactionAsync(decimal amount, string fromAccountNumber, string toAccountNumber, DateTime? date = null)
         {
+            DateTime dateTransaction = date ?? DateTime.Now;
             try
             {
                 await TransactionBroker.StartConnectionAsync();
@@ -29,14 +27,20 @@ namespace EBanking.BusinessLayer
                 if (toAccount == null)
                     throw new Exception($"Рачун са бројем: '{toAccountNumber}' није пронађен.");
                 if (fromAccount.Status == AccountStatus.INACTIVE || toAccount.Status == AccountStatus.INACTIVE)
-                    throw new Exception($"Рачуни морају бити активни да би вршили трансакције.");
+                    throw new Exception("Рачуни морају бити активни да би вршили трансакције.");
                 if (fromAccount.Currency.Equals(toAccount.Currency) == false)
-                    throw new Exception($"Рачуни морају бити исте валуте.");
-                var transaction = new Transaction() { Amount = amount, Date = date, FromAccount = fromAccount, ToAccount = toAccount };
+                    throw new Exception("Рачуни морају бити исте валуте.");
+                if (fromAccount.Balance < amount)
+                    throw new Exception("На стању даваоца нема довољно средстава за ову трансакцију.");
+                fromAccount.Balance -= amount;
+                toAccount.Balance += amount;
+                var transaction = new Transaction() { Amount = amount, Date = dateTransaction, FromAccount = fromAccount, ToAccount = toAccount };
                 var resultInfo = new TransactionValidator(transaction).Validate();
                 if (resultInfo.IsValid == false)
                     throw new Exception(resultInfo.GetErrorsString());
                 await TransactionBroker.StartTransactionAsync();
+                await AccountBroker.UpdateAccountByIdAsync(fromAccount);
+                await AccountBroker.UpdateAccountByIdAsync(toAccount);
                 var createdTransaction = await TransactionBroker.CreateTransactionAsync(transaction);
                 await TransactionBroker.CommitTransactionAsync();
                 return createdTransaction;

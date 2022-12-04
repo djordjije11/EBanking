@@ -8,7 +8,7 @@ namespace EBanking.SqlDataAccess.SqlBrokers
 
     public class SqlTransactionBroker : SqlEntityBroker, ITransactionBroker
     {
-        public SqlTransactionBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        public SqlTransactionBroker(IConnector connector) : base(connector)
         {
         }
         public async Task<Transaction> CreateTransactionAsync(Transaction transaction)

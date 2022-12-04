@@ -1,17 +1,17 @@
 ﻿using ConsoleTableExt;
 using EBanking.Console.Common;
-using Microsoft.Extensions.DependencyInjection;
+using EBanking.Console.HttpClients;
+using EBanking.Models;
 
 namespace EBanking.AppControllers
 {
     public class AccountConsole
     {
-        public AccountConsole(IServiceProvider serviceProvider)
+        private readonly IAccountHttpClient accountHttpClient;
+        public AccountConsole(IAccountHttpClient accountHttpClient)
         {
-            ServiceProvider = serviceProvider;
+            this.accountHttpClient = accountHttpClient;
         }
-
-        public IServiceProvider ServiceProvider { get; }
 
         public async Task Start()
         {
@@ -82,11 +82,10 @@ namespace EBanking.AppControllers
 
                                 if (exitRequested == true)
                                     break;
-                                                              
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var account = await accountController.CreateAccountAsnyc(userID, currencyID);
 
-                                System.Console.WriteLine($"Додат нови рачун: '{account.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                var account = await accountHttpClient.PostAsync(userID, currencyID);
+
+                                System.Console.WriteLine($"Додат нови рачун: '{account?.SinglePrint()}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -119,11 +118,12 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                System.Console.WriteLine("Унесите нови статус рачуна:");
+                                System.Console.WriteLine($"Унесите нови статус рачуна:\n{(int)AccountStatus.ACTIVE}.Активан {(int)AccountStatus.INACTIVE}.Неактиван");
                                 var status = System.Console.ReadLine() ?? "";
 
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var account = await accountController.UpdateAccountAsync(accountID, status);
+                                AccountStatus accountStatus = GetAccountStatus(status);
+                                
+                                var account = await accountHttpClient.PutAsync(accountID, accountStatus);
 
                                 System.Console.WriteLine($"Ажуриран рачун: '{account}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -158,8 +158,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var deletedAccount = await accountController.DeleteAccountAsync(accountID);
+                                var deletedAccount = await accountHttpClient.DeleteAsync(accountID);
 
                                 System.Console.WriteLine($"Обрисан рачуна: '{deletedAccount}'. (притисните било који тастер за наставак)");
 
@@ -194,8 +193,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var account = await accountController.ReadAccountAsync(accountID);
+                                var account = await accountHttpClient.GetAsync(accountID);
 
                                 System.Console.WriteLine($"Рачун: '{account}'. (притисните било који тастер за наставак)");
 
@@ -204,10 +202,9 @@ namespace EBanking.AppControllers
                             }
                         case "5":
                             {
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var accounts = await accountController.ReadAllAccountsAsync();
+                                var accounts = await accountHttpClient.GetAsync();
 
-                                var tableRawData = accounts.Select(x => new
+                                var tableRawData = accounts?.Select(x => new
                                 {
                                     Id = x.Id,
                                     Number = x.Number,
@@ -257,10 +254,9 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var accountController = ServiceProvider.GetRequiredService<AccountController>();
-                                var transactions = await accountController.ReadAllTransactionsOfAccountAsync(accountID);
+                                var transactions = await accountHttpClient.GetTransactionsAsync(accountID);
 
-                                var tableRawData = transactions.Select(x => new
+                                var tableRawData = transactions?.Select(x => new
                                 {
                                     Id = x.Id,
                                     Amount = x.Amount,
@@ -305,6 +301,15 @@ namespace EBanking.AppControllers
             System.Console.WriteLine("6. Прикажи све трансакције рачуна");
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
+        }
+        AccountStatus GetAccountStatus(string accountStatus)
+        {
+            if (Enum.TryParse(accountStatus, out AccountStatus status))
+            {
+                return status;
+            }
+
+            throw new Exception("Унет невалидан статус рачуна.");
         }
     }
 }

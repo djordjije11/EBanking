@@ -1,30 +1,16 @@
 ﻿using ConsoleTableExt;
-using EBanking.BusinessLayer.Interfaces;
 using EBanking.Console.Common;
-using EBanking.Models;
-using EBanking.Models.ModelsDto;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Net.Http.Json;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json.Nodes;
-using static System.Net.WebRequestMethods;
+using EBanking.Console.HttpClients;
 
 namespace EBanking.AppControllers
 {
     public class UserConsole
     {
-        private readonly HttpClient client;
-        private readonly string url = "https://localhost:7118/api/User";
-        public UserConsole(IServiceProvider serviceProvider)
+        private readonly IUserHttpClient userHttpClient;
+        public UserConsole(IUserHttpClient userHttpClient)
         {
-            ServiceProvider = serviceProvider;
-            client = serviceProvider.GetRequiredService<HttpClient>();
+            this.userHttpClient = userHttpClient;
         }
-        public IServiceProvider ServiceProvider { get; }
         public async Task Start()
         {
             var goBackRequested = false;
@@ -55,20 +41,10 @@ namespace EBanking.AppControllers
 
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
-                                
-                                var response = await client.PostAsJsonAsync(url, new User() { FirstName = firstName, LastName = lastName, Email = email, Password = password});
-                                var responseBody = await response.Content.ReadAsStringAsync();
-                                try
-                                {
-                                    response.EnsureSuccessStatusCode();
-                                }
-                                catch
-                                {
-                                    throw new Exception(responseBody);
-                                }
-                                var user = JsonConvert.DeserializeObject<User>(responseBody);
 
-                                System.Console.WriteLine($"Додат нови корисник: '{user}'. (притисните било који тастер за наставак)");
+                                var user = await userHttpClient.PostAsync(firstName, lastName, email, password);
+
+                                System.Console.WriteLine($"Додат нови корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -101,11 +77,12 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                System.Console.WriteLine("Унесите нову вредност за име:");
-                                string firstName = System.Console.ReadLine() ?? "";
+                                var wantedUser = await userHttpClient.GetAsync(userID);
+                                
+                                System.Console.WriteLine(wantedUser?.SinglePrint());
 
-                                System.Console.WriteLine("Унесите нову вредност за презиме:");
-                                string lastName = System.Console.ReadLine() ?? "";
+                                System.Console.WriteLine("Унесите нову емаил адресу:");
+                                string email = System.Console.ReadLine() ?? "";
 
                                 System.Console.WriteLine("Унесите стару вредност за шифру:");
                                 string oldPassword = System.Console.ReadLine() ?? "";
@@ -113,27 +90,9 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите нову вредност за шифру:");
                                 string newPassword = System.Console.ReadLine() ?? "";
 
-                                /*
-                                 * QUERY-iji SE KORISTE SAMO ZA GET ZAHTEVE
-                                var parameters = new Dictionary<string, string?> { { "id", userID.ToString() }, { "firstname", firstName }, { "lastname", lastName }, { "oldPassword", oldPassword }, { "newPassword", newPassword } };
-                                var encodedContent = new FormUrlEncodedContent(parameters);
-                                var response = await client.PutAsync(url, encodedContent);
-                                */
+                                var updatedUser = await userHttpClient.PutAsync(userID, email, oldPassword, newPassword);
 
-                                var response = await client.PutAsJsonAsync(url + $"/{userID}", new UserDto() { FirstName = firstName, LastName = lastName, Password = newPassword, OldPassword = oldPassword });
-
-                                var responseBody = await response.Content.ReadAsStringAsync();
-                                try
-                                {
-                                    response.EnsureSuccessStatusCode();
-                                }
-                                catch
-                                {
-                                    throw new Exception(responseBody);
-                                }
-                                var user = JsonConvert.DeserializeObject<User>(responseBody);
-
-                                System.Console.WriteLine($"Ажуриран корисник: '{user}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Ажуриран корисник: '{updatedUser?.SinglePrint()}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -169,29 +128,9 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                //new Dictionary<string, string>() { { "Password", password } }
+                                var user = await userHttpClient.DeleteAsync(userID, password);
 
-                                var request = new HttpRequestMessage
-                                {
-                                    Method = HttpMethod.Delete,
-                                    RequestUri = new Uri(url + $"/{userID}"),
-                                    Content = new StringContent(JsonConvert.SerializeObject(new UserDto() { Password = password }), Encoding.UTF8, "application/json")
-                                };
-                                var response = await client.SendAsync(request);
-
-                                string responseBody = await response.Content.ReadAsStringAsync();
-                                try
-                                {
-                                    response.EnsureSuccessStatusCode();
-                                }
-                                catch
-                                {
-                                    throw new Exception(responseBody);
-                                }
-                                var user = JsonConvert.DeserializeObject<User>(responseBody);
-
-
-                                System.Console.WriteLine($"Обрисан корисник: '{user}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Обрисан корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
 
                                 System.Console.ReadKey();
                                 break;
@@ -224,27 +163,15 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                HttpResponseMessage response = await client.GetAsync($"https://localhost:7118/api/User/{userID}");
-                                string responseBody = await response.Content.ReadAsStringAsync();
-                                try
-                                {
-                                    response.EnsureSuccessStatusCode();
-                                }
-                                catch
-                                {
-                                    throw new Exception(responseBody);
-                                }
-                                var user = JsonConvert.DeserializeObject<User>(responseBody);
-                                System.Console.WriteLine($"Корисник: '{user}'. (притисните било који тастер за наставак)");
+                                var user = await userHttpClient.GetAsync(userID);
+
+                                System.Console.WriteLine($"Корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
                                 break;
                             }
                         case "5":
                             {
-                                HttpResponseMessage response = await client.GetAsync("https://localhost:7118/api/User");
-                                response.EnsureSuccessStatusCode();
-                                string responseBody = await response.Content.ReadAsStringAsync();
-                                var users = JsonConvert.DeserializeObject<List<User>>(responseBody);
+                                var users = (await userHttpClient.GetAsync())?.ToList();
                                 
                                 ConsoleTableBuilder
                                     .From(users)
@@ -284,20 +211,8 @@ namespace EBanking.AppControllers
 
                                 if (exitRequested == true)
                                     break;
-
-                                HttpResponseMessage response = await client.GetAsync($"https://localhost:7118/api/User/{userID}/Accounts");
-                                string responseBody = await response.Content.ReadAsStringAsync();
-                                try
-                                {
-                                    response.EnsureSuccessStatusCode();
-                                    
-                                }
-                                catch
-                                {
-                                    throw new Exception(responseBody);
-                                }
                                 
-                                var accounts = JsonConvert.DeserializeObject<List<Account>>(responseBody);
+                                var accounts = await userHttpClient.GetAccountsAsync(userID);
                                 
                                 if (accounts == null)
                                     throw new Exception($"Рачуни корисника са идентификатором {userID}  нису пронађени.");

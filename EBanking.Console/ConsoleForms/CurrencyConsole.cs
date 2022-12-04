@@ -1,17 +1,15 @@
 ﻿using ConsoleTableExt;
-using EBanking.BusinessLayer.Interfaces;
-using EBanking.Models;
-using Microsoft.Extensions.DependencyInjection;
+using EBanking.Console.HttpClients;
 
 namespace EBanking.AppControllers
 {
     public class CurrencyConsole
     {
-        public CurrencyConsole(IServiceProvider serviceProvider)
+        private readonly ICurrencyHttpClient currencyHttpClient;
+        public CurrencyConsole(ICurrencyHttpClient currencyHttpClient)
         {
-            ServiceProvider = serviceProvider;
+            this.currencyHttpClient = currencyHttpClient;
         }
-        public IServiceProvider ServiceProvider { get; }
         public async Task Start()
         {
             var goBackRequested = false;
@@ -37,8 +35,7 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите код:");
                                 var code = System.Console.ReadLine() ?? "";
 
-                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
-                                var currency = await currencyController.CreateCurrencyAsync(name, code);
+                                var currency = await currencyHttpClient.PostAsync(name, code);
 
                                 System.Console.WriteLine($"Додата нова валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -73,14 +70,15 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
+
+
                                 System.Console.WriteLine("Унесите нову вредност за назив:");
                                 string name = System.Console.ReadLine() ?? "";
 
                                 System.Console.WriteLine("Унесите нову вредност за код:");
                                 string code = System.Console.ReadLine() ?? "";
 
-                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
-                                var currency = await currencyController.UpdateCurrencyAsync(currencyID, name, code);
+                                var currency = await currencyHttpClient.PutAsync(currencyID, name, code);
 
                                 System.Console.WriteLine($"Ажурирана валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -115,8 +113,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
-                                var currency = await currencyController.DeleteCurrencyAsync(currencyID);
+                                var currency = await currencyHttpClient.DeleteAsync(currencyID);
 
                                 System.Console.WriteLine($"Обрисана валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -151,8 +148,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
-                                var currency = await currencyController.ReadCurrencyAsync(currencyID);
+                                var currency = await currencyHttpClient.GetAsync(currencyID);
 
                                 System.Console.WriteLine($"Валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -161,8 +157,7 @@ namespace EBanking.AppControllers
                             }
                         case "5":
                             {
-                                var currencyController = ServiceProvider.GetRequiredService<CurrencyController>();
-                                var currencies = await currencyController.ReadAllCurrenciesAsync();
+                                var currencies = (await currencyHttpClient.GetAsync())?.ToList();
 
                                 ConsoleTableBuilder
                                     .From(currencies)

@@ -2,7 +2,6 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validation.Validators;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
@@ -11,13 +10,11 @@ namespace EBanking.BusinessLayer
         IAccountBroker AccountBroker { get; }
         IUserBroker UserBroker { get; }
         ICurrencyBroker CurrencyBroker { get; }
-        public IServiceProvider ServiceProvider { get; }
-        public AccountLogic(IServiceProvider serviceProvider)
+        public AccountLogic(IAccountBroker accountBroker, IUserBroker userBroker, ICurrencyBroker currencyBroker)
         {
-            ServiceProvider = serviceProvider;
-            AccountBroker = ServiceProvider.GetRequiredService<IAccountBroker>();
-            UserBroker = ServiceProvider.GetRequiredService<IUserBroker>();
-            CurrencyBroker = ServiceProvider.GetRequiredService<ICurrencyBroker>();
+            AccountBroker = accountBroker;
+            UserBroker = userBroker;
+            CurrencyBroker = currencyBroker;
         }
         public async Task<Account> AddAccountAsync(int userId, int currencyId)
         {
@@ -134,7 +131,7 @@ namespace EBanking.BusinessLayer
                 await AccountBroker.EndConnectionAsync();
             }
         }
-        public async Task<Account> UpdateAccountAsync(int accountId, string status)
+        public async Task<Account> UpdateAccountAsync(int accountId, AccountStatus status)
         {
             try
             {
@@ -142,7 +139,7 @@ namespace EBanking.BusinessLayer
                 var account = await AccountBroker.GetAccountByIdAsync(new Account() { Id = accountId });
                 if(account == null)
                     throw new Exception($"Рачун са идентификатором: '{accountId}' није пронађен.");
-                account.Status = GetAccountStatus(status);
+                account.Status = status;
                 var resultInfo = new AccountValidator(account).Validate();
                 if (resultInfo.IsValid == false)
                     throw new Exception(resultInfo.GetErrorsString());
@@ -177,14 +174,6 @@ namespace EBanking.BusinessLayer
                 await AccountBroker.EndConnectionAsync();
             }
         }
-        AccountStatus GetAccountStatus(string accountStatus)
-        {
-            if (Enum.TryParse<AccountStatus>(accountStatus, out AccountStatus status) == true)
-            {
-                return status;
-            }
-
-            throw new Exception("Унет невалидан статус рачуна.");
-        }
+        
     }
 }

@@ -8,7 +8,7 @@ namespace SqliteDataAccess.SqliteBrokers
 {
     public class SqliteUserBroker : SqliteEntityBroker, IUserBroker
     {
-        public SqliteUserBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        public SqliteUserBroker(IConnector connector) : base(connector)
         {
         }
         public async Task<User> CreateUserAsync(User user)

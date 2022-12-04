@@ -69,9 +69,9 @@ namespace SqlDataAccesss.SqlModels
         }
         public void SetSqlSelectAccountByNumber(SqlCommand command)
         {
-            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code \"" +
+            command.CommandText = $"select a.Id, a.Balance, a.Status, a.Number, u.Id as userID, u.FirstName, u.LastName, u.Email, u.Password, c.Id as currencyID, c.Name, c.Code " +
                  $"from {GetTableName()} as a INNER JOIN {new SqlUser().GetTableName()} as u ON (a.UserId = u.Id) INNER JOIN {new SqlCurrency().GetTableName()} as c ON (a.CurrencyId = c.Id) " +
-                 $"where a.Number = {Account.Number}";
+                 $"where a.Number = '{Account.Number}'";
         }
         public void SetSqlSelectAllTransactionsByAccountId(SqlCommand command)
         {

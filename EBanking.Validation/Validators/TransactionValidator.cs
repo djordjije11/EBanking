@@ -1,5 +1,6 @@
 ﻿using EBanking.Models;
 using FluentValidation;
+using System.Net.Http.Headers;
 
 namespace EBanking.Validation.Validators
 {
@@ -7,7 +8,7 @@ namespace EBanking.Validation.Validators
     {
         public TransactionValidator(Transaction transaction)
         {
-
+            
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.SqlDataAccess.SqlConnectors;
-using Microsoft.Extensions.DependencyInjection;
 using SqlDataAccesss.SqlModels;
 using System.Data.SqlClient;
 
@@ -11,11 +10,9 @@ namespace EBanking.SqlDataAccess.SqlBrokers
     {
         //protected readonly SqlConnector connector = SqlConnector.GetInstance();
         protected readonly SqlConnector connector;
-        public IServiceProvider ServiceProvider { get; }
-        public SqlEntityBroker(IServiceProvider serviceProvider)
+        public SqlEntityBroker(IConnector connector)
         {
-            ServiceProvider = serviceProvider;
-            connector = (SqlConnector)ServiceProvider.GetRequiredService<IConnector>();
+            this.connector = (SqlConnector)connector;
         }
         public async Task StartConnectionAsync()
         {

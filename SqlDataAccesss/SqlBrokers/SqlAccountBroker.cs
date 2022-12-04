@@ -7,7 +7,7 @@ namespace EBanking.SqlDataAccess.SqlBrokers
 {
     public class SqlAccountBroker : SqlEntityBroker, IAccountBroker
     {
-        public SqlAccountBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        public SqlAccountBroker(IConnector connector) : base(connector)
         {
         }
         public async Task<Account> CreateAccountAsync(Account account)

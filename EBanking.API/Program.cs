@@ -19,9 +19,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ILogger, TextLogger>();
 builder.Services.AddTransient<IUserLogic, UserLogic>();
+builder.Services.AddTransient<IAccountLogic, AccountLogic>();
+builder.Services.AddTransient<ICurrencyLogic, CurrencyLogic>();
+builder.Services.AddTransient<ITransactionLogic, TransactionLogic>();
 builder.Services.AddTransient<IUserBroker, SqlUserBroker>();
+builder.Services.AddTransient<IAccountBroker, SqlAccountBroker>();
+builder.Services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
+builder.Services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
 builder.Services.AddSingleton<IConnector, SqlConnector>();
-//var filePath = "D:\\MyDocs\\Repositories\\EBanking App\\SqlDataAccesss\\config.sql.json";
+
 var filePath = "config.sql.json";
 builder.Services.AddSingleton<IConfigurationManager>(_ =>
 {

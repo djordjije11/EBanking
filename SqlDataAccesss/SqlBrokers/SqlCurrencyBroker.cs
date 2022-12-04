@@ -8,7 +8,7 @@ namespace EBanking.SqlDataAccess.SqlBrokers
 {
     public class SqlCurrencyBroker : SqlEntityBroker, ICurrencyBroker
     {
-        public SqlCurrencyBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        public SqlCurrencyBroker(IConnector connector) : base(connector)
         {
         }
         public async Task<Currency> CreateCurrencyAsync(Currency currency)

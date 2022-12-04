@@ -1,24 +1,18 @@
 ﻿using EBanking.AppControllers;
-using EBanking.DataAccessLayer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using EBanking.SqlDataAccess.SqlBrokers;
-using SqliteDataAccess.SqliteBrokers;
-using EBanking.BusinessLayer.Interfaces;
-using EBanking.BusinessLayer;
 using EBanking.ConfigurationManager.Interfaces;
 using EBanking.ConfigurationManager;
-using System.Data.SqlClient;
-using EBanking.SqlDataAccess.SqlConnectors;
-using SqliteDataAccess.SqliteConnectors;
 using EBanking.Models;
+using Newtonsoft.Json;
+using EBanking.Console.HttpClients;
 
 namespace EBanking.Console.Common
 {
     public static class HelperMethods
     {
-        public static string GetDisplayName(this Enum enumValue)
+        public static string? GetDisplayName(this Enum enumValue)
         {
             if (enumValue == null)
                 return null;
@@ -34,39 +28,36 @@ namespace EBanking.Console.Common
             return attr?.GetName() ?? enumValue.ToString();
         }
 
-        public static ServiceProvider CreateServiceProvider(string databaseType)
+        public static async Task<T?> GetEntityFromHttpResponse<T>(HttpResponseMessage response) where T : IEntity
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                throw new Exception(responseBody);
+            }
+            return JsonConvert.DeserializeObject<T>(responseBody);
+        }
+        public static async Task<IEnumerable<T>?> GetEntitiesFromHttpResponse<T>(HttpResponseMessage response) where T : IEntity
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                throw new Exception(responseBody);
+            }
+            return JsonConvert.DeserializeObject<IEnumerable<T>?>(responseBody);
+        }
+
+        public static ServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            var filePath = string.Empty;
-
-            switch (databaseType.ToUpper())
-            {
-                case "SQL":
-                    {
-                        services.AddTransient<IAccountBroker, SqlAccountBroker>();
-                        services.AddTransient<IUserBroker, SqlUserBroker>();
-                        services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
-                        services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
-                        services.AddSingleton<IConnector, SqlConnector>();
-                        filePath = "D:\\MyDocs\\Repositories\\EBanking App\\SqlDataAccesss\\config.sql.json";
-                        break;
-                    }
-                case "SQLITE":
-                    {
-                        services.AddTransient<IAccountBroker, SqliteAccountBroker>();
-                        services.AddTransient<IUserBroker, SqliteUserBroker>();
-                        services.AddTransient<ITransactionBroker, SqliteTransactionBroker>();
-                        services.AddTransient<ICurrencyBroker, SqliteCurrencyBroker>();
-                        services.AddSingleton<IConnector, SqliteConnector>();
-                        filePath = "D:\\MyDocs\\Repositories\\EBanking App\\SqlLiteDataAccess\\config.sqlite.json";
-                        break;
-                    }
-                default:
-                    {
-                        throw new Exception("НИЈЕ ПОДРЖАН РАД СА УНЕТИМ ТИПОМ БАЗЕ ПОДАТАКА.");
-                    }
-            }
-
             services.AddSingleton<ILogger, TextLogger>();
             //services.AddSingleton<UserManager, UserManager>();
             services.AddSingleton<MainConsole, MainConsole>();
@@ -74,18 +65,8 @@ namespace EBanking.Console.Common
             services.AddSingleton<AccountConsole, AccountConsole>();
             services.AddSingleton<CurrencyConsole, CurrencyConsole>();
             services.AddSingleton<TransactionConsole, TransactionConsole>();
-            
-            
-            //ovaj deo ce se inicijalizovati na serverskoj strani kada bude razdvojeno na klijent-server arhitekturu, trenutno je ovde na klijentskoj strani
-            services.AddSingleton<UserController, UserController>();
-            services.AddSingleton<AccountController, AccountController>();
-            services.AddSingleton<CurrencyController, CurrencyController>();
-            services.AddSingleton<TransactionController, TransactionController>();
-            services.AddTransient<IUserLogic, UserLogic>();
-            services.AddTransient<IAccountLogic, AccountLogic>();
-            services.AddTransient<ICurrencyLogic, CurrencyLogic>();
-            services.AddTransient<ITransactionLogic, TransactionLogic>();
 
+            var filePath = "D:\\MyDocs\\Repositories\\EBanking App\\EBanking.Console\\config.json";
             services.AddSingleton<IConfigurationManager>(_ =>
             {
                 var configurationManager = new JsonFileConfigurationManager();
@@ -93,7 +74,11 @@ namespace EBanking.Console.Common
                 return configurationManager;
             });
 
-            services.AddTransient<HttpClient>();
+            services.AddHttpClient();
+            services.AddTransient<IUserHttpClient, UserHttpClient>();
+            services.AddTransient<ICurrencyHttpClient, CurrencyHttpClient>();
+            services.AddTransient<IAccountHttpClient, AccountHttpClient>();
+            services.AddTransient<ITransactionHttpClient, TransactionHttpClient>();
 
             return services.BuildServiceProvider();
         }

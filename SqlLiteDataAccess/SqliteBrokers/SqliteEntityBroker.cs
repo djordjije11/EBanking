@@ -1,6 +1,5 @@
 ﻿using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
-using Microsoft.Extensions.DependencyInjection;
 using SqliteDataAccess.SqliteConnectors;
 using SqliteDataAccess.SqliteModels;
 using System.Data.SQLite;
@@ -11,11 +10,9 @@ namespace SqliteDataAccess.SqliteBrokers
     {
         //protected readonly SqliteConnector connector = SqliteConnector.GetInstance();
         protected readonly SqliteConnector connector;
-        public IServiceProvider ServiceProvider { get; }
-        public SqliteEntityBroker(IServiceProvider serviceProvider)
+        public SqliteEntityBroker(IConnector connector)
         {
-            ServiceProvider = serviceProvider;
-            connector = (SqliteConnector)ServiceProvider.GetRequiredService<IConnector>();
+            this.connector = (SqliteConnector)connector;
         }
         public async Task StartConnectionAsync()
         {

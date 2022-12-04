@@ -1,0 +1,6 @@
+{
+  "url_user": "https://localhost:7118/api/User",
+  "url_account": "https://localhost:7118/api/Account",
+  "url_currency": "https://localhost:7118/api/Currency",
+  "url_transaction": "https://localhost:7118/api/Transaction"
+}

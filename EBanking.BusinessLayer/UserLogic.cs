@@ -2,18 +2,15 @@
 using EBanking.DataAccessLayer.Interfaces;
 using EBanking.Models;
 using EBanking.Validations;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EBanking.BusinessLayer
 {
     public class UserLogic : IUserLogic
     {
         IUserBroker UserBroker { get; }
-        public IServiceProvider ServiceProvider { get; }
-        public UserLogic(IServiceProvider serviceProvider)
+        public UserLogic(IUserBroker userBroker)
         {
-            ServiceProvider = serviceProvider;
-            UserBroker = serviceProvider.GetRequiredService<IUserBroker>();
+            UserBroker = userBroker;
         }
         public async Task<User> AddUserAsync(string firstName, string lastName, string email, string password)
         {
@@ -39,7 +36,7 @@ namespace EBanking.BusinessLayer
                 await UserBroker.EndConnectionAsync();
             }
         }
-        public async Task<User> UpdateUserAsync(int userId, string firstName, string lastName, string oldPassword, string newPassword)
+        public async Task<User> UpdateUserAsync(int userId, string email, string oldPassword, string newPassword)
         {
             try
             {
@@ -49,8 +46,7 @@ namespace EBanking.BusinessLayer
                     throw new Exception($"Корисник са идентификатором: '{userId}' није пронађен.");
                 if (user.Password.Equals(oldPassword) == false)
                     throw new Exception("Не можете мењати податке о кориснику без тачно унете шифре.");
-                user.FirstName = firstName;
-                user.LastName = lastName;
+                user.Email = email;
                 user.Password = newPassword;
                 var resultInfo = new UserValidator(user).Validate();
                 if (resultInfo.IsValid == false)

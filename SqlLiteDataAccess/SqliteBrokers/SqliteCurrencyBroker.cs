@@ -8,7 +8,7 @@ namespace SqliteDataAccess.SqliteBrokers
 {
     public class SqliteCurrencyBroker : SqliteEntityBroker, ICurrencyBroker
     {
-        public SqliteCurrencyBroker(IServiceProvider serviceProvider) : base(serviceProvider)
+        public SqliteCurrencyBroker(IConnector connector) : base(connector)
         {
         }
         public async Task<Currency> CreateCurrencyAsync(Currency currency)
