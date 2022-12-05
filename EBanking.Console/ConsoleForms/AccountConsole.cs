@@ -1,16 +1,17 @@
 ﻿using ConsoleTableExt;
 using EBanking.Console.Common;
 using EBanking.Models;
+using EBanking.Services.Interfaces;
 
 namespace EBanking.AppControllers
 {
     public class AccountConsole
     {
-        /*
-        private readonly IAccountHttpClient accountHttpClient;
-        public AccountConsole(IAccountHttpClient accountHttpClient)
+        private readonly IAccountService accountService;
+
+        public AccountConsole(IAccountService accountService)
         {
-            this.accountHttpClient = accountHttpClient;
+            this.accountService = accountService;
         }
 
         public async Task Start()
@@ -83,9 +84,9 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var account = await accountHttpClient.PostAsync(userID, currencyID);
+                                var account = await accountService.AddAccountAsync(userID, currencyID);
 
-                                System.Console.WriteLine($"Додат нови рачун: '{account?.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Додат нови рачун: '{account}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -123,7 +124,7 @@ namespace EBanking.AppControllers
 
                                 AccountStatus accountStatus = GetAccountStatus(status);
                                 
-                                var account = await accountHttpClient.PutAsync(accountID, accountStatus);
+                                var account = await accountService.UpdateAccountAsync(accountID, accountStatus);
 
                                 System.Console.WriteLine($"Ажуриран рачун: '{account}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -158,7 +159,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var deletedAccount = await accountHttpClient.DeleteAsync(accountID);
+                                var deletedAccount = await accountService.DeleteAccountAsync(accountID);
 
                                 System.Console.WriteLine($"Обрисан рачуна: '{deletedAccount}'. (притисните било који тастер за наставак)");
 
@@ -193,7 +194,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var account = await accountHttpClient.GetAsync(accountID);
+                                var account = await accountService.GetAccountAsync(accountID);
 
                                 System.Console.WriteLine($"Рачун: '{account}'. (притисните било који тастер за наставак)");
 
@@ -202,16 +203,14 @@ namespace EBanking.AppControllers
                             }
                         case "5":
                             {
-                                var accounts = await accountHttpClient.GetAsync();
+                                var accounts = await accountService.GetAllAccountsAsync();
 
                                 var tableRawData = accounts?.Select(x => new
                                 {
                                     Id = x.Id,
                                     Number = x.Number,
-                                    UserFirstName = x.User.FirstName,
-                                    UserLastName = x.User.LastName,
-                                    UserEmail = x.User.Email,
-                                    CurrencyName = x.Currency.Name,
+                                    UserID = x.UserID,
+                                    CurrencyCode = x.CurrencyCode,
                                     Balance = x.Balance,
                                     Status = x.Status.GetDisplayName()
                                 }).ToList();
@@ -219,7 +218,7 @@ namespace EBanking.AppControllers
                                 ConsoleTableBuilder
                                     .From(tableRawData)
                                     .WithTitle("РАЧУНИ ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
-                                    .WithColumn("ИД", "Број рачуна", "Име", "Презиме", "ЕМаил", "Валута", "Износ", "Статус")
+                                    .WithColumn("ИД", "Број рачуна", "Корисник", "Валута", "Износ", "Статус")
                                     .ExportAndWriteLine();
 
                                 System.Console.WriteLine("Притисните било који тастер за наставак...");
@@ -254,15 +253,15 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transactions = await accountHttpClient.GetTransactionsAsync(accountID);
+                                var transactions = await accountService.GetTransactionsFromAccountAsync(accountID);
 
                                 var tableRawData = transactions?.Select(x => new
                                 {
                                     Id = x.Id,
                                     Amount = x.Amount,
                                     Date = x.Date,
-                                    FromAccount = x.FromAccount,
-                                    ToAccount = x.ToAccount
+                                    FromAccount = x.FromAccountNumber,
+                                    ToAccount = x.ToAccountNumber
                                 }).ToList();
 
                                 ConsoleTableBuilder
@@ -311,6 +310,5 @@ namespace EBanking.AppControllers
 
             throw new Exception("Унет невалидан статус рачуна.");
         }
-        */
     }
 }

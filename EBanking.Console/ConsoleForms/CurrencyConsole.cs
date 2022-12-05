@@ -1,14 +1,14 @@
 ﻿using ConsoleTableExt;
+using EBanking.Services.Interfaces;
 
 namespace EBanking.AppControllers
 {
     public class CurrencyConsole
     {
-        /*
-        private readonly ICurrencyHttpClient currencyHttpClient;
-        public CurrencyConsole(ICurrencyHttpClient currencyHttpClient)
+        private readonly ICurrencyService currencyService;
+        public CurrencyConsole(ICurrencyService currencyService)
         {
-            this.currencyHttpClient = currencyHttpClient;
+            this.currencyService = currencyService;
         }
         public async Task Start()
         {
@@ -35,7 +35,7 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите код:");
                                 var code = System.Console.ReadLine() ?? "";
 
-                                var currency = await currencyHttpClient.PostAsync(name, code);
+                                var currency = await currencyService.AddCurrencyAsync(name, code);
 
                                 System.Console.WriteLine($"Додата нова валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -78,7 +78,7 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите нову вредност за код:");
                                 string code = System.Console.ReadLine() ?? "";
 
-                                var currency = await currencyHttpClient.PutAsync(currencyID, name, code);
+                                var currency = await currencyService.UpdateCurrencyAsync(currencyID, name, code);
 
                                 System.Console.WriteLine($"Ажурирана валута: '{currency}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -113,7 +113,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currency = await currencyHttpClient.DeleteAsync(currencyID);
+                                var currency = await currencyService.DeleteCurrencyAsync(currencyID);
 
                                 System.Console.WriteLine($"Обрисана валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -148,7 +148,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var currency = await currencyHttpClient.GetAsync(currencyID);
+                                var currency = await currencyService.GetCurrencyAsync(currencyID);
 
                                 System.Console.WriteLine($"Валута: '{currency}'. (притисните било који тастер за наставак)");
 
@@ -157,7 +157,7 @@ namespace EBanking.AppControllers
                             }
                         case "5":
                             {
-                                var currencies = (await currencyHttpClient.GetAsync())?.ToList();
+                                var currencies = (await currencyService.GetAllCurrenciesAsync())?.ToList();
 
                                 ConsoleTableBuilder
                                     .From(currencies)
@@ -195,6 +195,5 @@ namespace EBanking.AppControllers
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
         }
-        */
     }
 }

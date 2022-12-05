@@ -16,6 +16,7 @@ using EBanking.DataAccessLayer.Interfaces;
 using EBanking.SqlDataAccess.SqlBrokers;
 using EBanking.SqlDataAccess.SqlConnectors;
 using EBanking.BusinessLayer;
+using EBanking.API.DTO.TransactionDtos;
 
 namespace EBanking.Console.Common
 {
@@ -54,16 +55,18 @@ namespace EBanking.Console.Common
                 configurationManager.Initialize(filePath);
                 return configurationManager;
             });
-            /*
+            
             services.AddHttpClient();
             services.AddTransient<IUserHttpClient, UserHttpClient>();
             services.AddTransient<ICurrencyHttpClient, CurrencyHttpClient>();
             services.AddTransient<IAccountHttpClient, AccountHttpClient>();
             services.AddTransient<ITransactionHttpClient, TransactionHttpClient>();
             services.AddTransient<IUserService, UserAPIService>();
+            services.AddTransient<ICurrencyService, CurrencyAPIService>();
+            services.AddTransient<IAccountService, AccountAPIService>();
             services.AddTransient<ITransactionService, TransactionAPIService>();
-            */
-            
+
+            /*
             services.AddSingleton<ILogger, TextLogger>();
             services.AddTransient<IUserLogic, UserLogic>();
             services.AddTransient<IAccountLogic, AccountLogic>();
@@ -74,11 +77,12 @@ namespace EBanking.Console.Common
             services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
             services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
             services.AddSingleton<IConnector, SqlConnector>();
-            services.AddAutoMapper(typeof(GetUserDto).Assembly);
-            services.AddAutoMapper(typeof(GetAccountDto).Assembly);
+            services.AddAutoMapper(typeof(GetUserDto).Assembly, typeof(GetAccountDto).Assembly, typeof(TransactionDto).Assembly);
             services.AddTransient<IUserService, UserLogicService>();
+            services.AddTransient<ICurrencyService, CurrencyLogicService>();
+            services.AddTransient<IAccountService, AccountLogicService>();
             services.AddTransient<ITransactionService, TransactionLogicService>();
-            
+            */
 
             return services.BuildServiceProvider();
         }

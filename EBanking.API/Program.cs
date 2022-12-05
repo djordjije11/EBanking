@@ -30,9 +30,7 @@ builder.Services.AddTransient<IAccountBroker, SqlAccountBroker>();
 builder.Services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
 builder.Services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
 builder.Services.AddSingleton<IConnector, SqlConnector>();
-builder.Services.AddAutoMapper(typeof(GetUserDto).Assembly);
-builder.Services.AddAutoMapper(typeof(GetAccountDto).Assembly);
-builder.Services.AddAutoMapper(typeof(TransactionDto).Assembly);
+builder.Services.AddAutoMapper(typeof(GetUserDto).Assembly, typeof(GetAccountDto).Assembly, typeof(TransactionDto).Assembly);
 
 var filePath = "config.sql.json";
 builder.Services.AddSingleton<IConfigurationManager>(_ =>
