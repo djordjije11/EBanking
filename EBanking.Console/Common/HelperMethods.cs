@@ -5,8 +5,17 @@ using System.Reflection;
 using EBanking.ConfigurationManager.Interfaces;
 using EBanking.ConfigurationManager;
 using EBanking.Models;
-using Newtonsoft.Json;
-using EBanking.Console.HttpClients;
+using EBanking.Services.HttpClients;
+using EBanking.Services.Interfaces;
+using EBanking.Services.APIServices;
+using EBanking.Services.LogicServices;
+using EBanking.BusinessLayer.Interfaces;
+using EBanking.API.DTO.AccountDtos;
+using EBanking.API.DTO.UserDtos;
+using EBanking.DataAccessLayer.Interfaces;
+using EBanking.SqlDataAccess.SqlBrokers;
+using EBanking.SqlDataAccess.SqlConnectors;
+using EBanking.BusinessLayer;
 
 namespace EBanking.Console.Common
 {
@@ -27,34 +36,6 @@ namespace EBanking.Console.Common
 
             return attr?.GetName() ?? enumValue.ToString();
         }
-
-        public static async Task<T?> GetEntityFromHttpResponse<T>(HttpResponseMessage response) where T : IEntity
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            try
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch
-            {
-                throw new Exception(responseBody);
-            }
-            return JsonConvert.DeserializeObject<T>(responseBody);
-        }
-        public static async Task<IEnumerable<T>?> GetEntitiesFromHttpResponse<T>(HttpResponseMessage response) where T : IEntity
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            try
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch
-            {
-                throw new Exception(responseBody);
-            }
-            return JsonConvert.DeserializeObject<IEnumerable<T>?>(responseBody);
-        }
-
         public static ServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
@@ -73,12 +54,31 @@ namespace EBanking.Console.Common
                 configurationManager.Initialize(filePath);
                 return configurationManager;
             });
-
+            /*
             services.AddHttpClient();
             services.AddTransient<IUserHttpClient, UserHttpClient>();
             services.AddTransient<ICurrencyHttpClient, CurrencyHttpClient>();
             services.AddTransient<IAccountHttpClient, AccountHttpClient>();
             services.AddTransient<ITransactionHttpClient, TransactionHttpClient>();
+            services.AddTransient<IUserService, UserAPIService>();
+            services.AddTransient<ITransactionService, TransactionAPIService>();
+            */
+            
+            services.AddSingleton<ILogger, TextLogger>();
+            services.AddTransient<IUserLogic, UserLogic>();
+            services.AddTransient<IAccountLogic, AccountLogic>();
+            services.AddTransient<ICurrencyLogic, CurrencyLogic>();
+            services.AddTransient<ITransactionLogic, TransactionLogic>();
+            services.AddTransient<IUserBroker, SqlUserBroker>();
+            services.AddTransient<IAccountBroker, SqlAccountBroker>();
+            services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
+            services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
+            services.AddSingleton<IConnector, SqlConnector>();
+            services.AddAutoMapper(typeof(GetUserDto).Assembly);
+            services.AddAutoMapper(typeof(GetAccountDto).Assembly);
+            services.AddTransient<IUserService, UserLogicService>();
+            services.AddTransient<ITransactionService, TransactionLogicService>();
+            
 
             return services.BuildServiceProvider();
         }

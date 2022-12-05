@@ -1,9 +1,9 @@
 ﻿using EBanking.BusinessLayer.Interfaces;
 using EBanking.Models;
-using EBanking.Models.ModelsDto;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Transaction = EBanking.Models.Transaction;
+using EBanking.API.DTO.AccountDtos;
 
 namespace EBanking.API.Controllers
 {

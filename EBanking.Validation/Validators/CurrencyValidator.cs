@@ -12,7 +12,7 @@ namespace EBanking.Validation.Validators
                 .WithMessage("Валута не сме бити краће од два карактера")
                 .WithMaxLength(20)
                 .WithMessage("Валута не сме бити дужа од 20 карактера");
-            RuleFor(currency.CurrencyCode)
+            RuleFor(currency.Code)
                 .MatchesRegex(@"^[A-Z]{3}$")
                 .WithMessage("Код валуте мора имати само 3 велика слова");
         }

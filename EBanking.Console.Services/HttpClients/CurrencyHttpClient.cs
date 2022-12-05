@@ -1,9 +1,9 @@
 ﻿using EBanking.ConfigurationManager.Interfaces;
-using EBanking.Console.Common;
+using EBanking.Services.HttpClients.Helper;
 using EBanking.Models;
 using System.Net.Http.Json;
 
-namespace EBanking.Console.HttpClients
+namespace EBanking.Services.HttpClients
 {
     public interface ICurrencyHttpClient
     {
@@ -26,7 +26,7 @@ namespace EBanking.Console.HttpClients
         }
         public async Task<Currency?> PostAsync(string name, string code)
         {
-            var response = await httpClient.PostAsJsonAsync(url, new Currency() { Name = name, CurrencyCode = code });
+            var response = await httpClient.PostAsJsonAsync(url, new Currency() { Name = name, Code = code });
             return await HelperMethods.GetEntityFromHttpResponse<Currency>(response);
         }
         public async Task<Currency?> GetAsync(int id)
@@ -41,7 +41,7 @@ namespace EBanking.Console.HttpClients
         }
         public async Task<Currency?> PutAsync(int id, string name, string code)
         {
-            var response = await httpClient.PutAsJsonAsync($"{url}/{id}", new Currency() { Name = name, CurrencyCode = code });
+            var response = await httpClient.PutAsJsonAsync($"{url}/{id}", new Currency() { Name = name, Code = code });
             return await HelperMethods.GetEntityFromHttpResponse<Currency>(response);
         }
         public async Task<Currency?> DeleteAsync(int id)

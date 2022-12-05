@@ -1,8 +1,8 @@
 ﻿using EBanking.BusinessLayer.Interfaces;
-using EBanking.Models;
-using EBanking.Models.ModelsDto;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using EBanking.API.DTO.TransactionDtos;
+using AutoMapper;
 
 namespace EBanking.API.Controllers
 {
@@ -11,12 +11,15 @@ namespace EBanking.API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionLogic TransactionLogic;
-        public TransactionController(ITransactionLogic transactionLogic)
+        public IMapper Mapper { get; }
+
+        public TransactionController(ITransactionLogic transactionLogic, IMapper mapper)
         {
             TransactionLogic = transactionLogic;
+            Mapper = mapper;
         }
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Transaction>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TransactionDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get()
         {
@@ -25,7 +28,7 @@ namespace EBanking.API.Controllers
                 var transactions = await TransactionLogic.GetAllTransactionsAsync();
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(transactions);
+                return Ok(Mapper.Map<IEnumerable<TransactionDto>>(transactions));
             }
             catch (Exception ex)
             {
@@ -33,7 +36,7 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Transaction))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAsync(int id)
@@ -43,7 +46,7 @@ namespace EBanking.API.Controllers
                 var transaction = await TransactionLogic.FindTransactionAsync(id);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(transaction);
+                return Ok(Mapper.Map<TransactionDto>(transaction));
             }
             catch (Exception ex)
             {
@@ -51,7 +54,7 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Transaction))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TransactionDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(TransactionDto transactionDto)
         {
@@ -60,7 +63,7 @@ namespace EBanking.API.Controllers
                 var createdTransaction = await TransactionLogic.AddTransactionAsync(transactionDto.Amount, transactionDto.FromAccountNumber, transactionDto.ToAccountNumber);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Created(new Uri(Request.GetEncodedUrl() + "/" + createdTransaction.Id), createdTransaction);
+                return Created(new Uri(Request.GetEncodedUrl() + "/" + createdTransaction.Id), Mapper.Map<TransactionDto>(createdTransaction));
             }
             catch (Exception ex)
             {

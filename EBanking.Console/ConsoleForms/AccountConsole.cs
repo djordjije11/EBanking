@@ -1,12 +1,12 @@
 ﻿using ConsoleTableExt;
 using EBanking.Console.Common;
-using EBanking.Console.HttpClients;
 using EBanking.Models;
 
 namespace EBanking.AppControllers
 {
     public class AccountConsole
     {
+        /*
         private readonly IAccountHttpClient accountHttpClient;
         public AccountConsole(IAccountHttpClient accountHttpClient)
         {
@@ -311,5 +311,6 @@ namespace EBanking.AppControllers
 
             throw new Exception("Унет невалидан статус рачуна.");
         }
+        */
     }
 }

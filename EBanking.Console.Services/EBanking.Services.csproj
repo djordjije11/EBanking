@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigurationManager.Interfaces\EBanking.ConfigurationManager.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.BusinessLayer.Interfaces\EBanking.BusinessLayer.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.Console.Services.Interfaces\EBanking.Services.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

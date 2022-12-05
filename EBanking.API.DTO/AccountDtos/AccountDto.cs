@@ -1,4 +1,6 @@
-﻿namespace EBanking.Models.ModelsDto
+﻿using EBanking.Models;
+
+namespace EBanking.API.DTO.AccountDtos
 {
     public class AccountDto
     {

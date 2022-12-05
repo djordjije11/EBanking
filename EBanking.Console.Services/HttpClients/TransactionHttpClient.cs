@@ -1,16 +1,15 @@
 ﻿using EBanking.ConfigurationManager.Interfaces;
-using EBanking.Console.Common;
-using EBanking.Models;
-using EBanking.Models.ModelsDto;
+using EBanking.Services.HttpClients.Helper;
 using System.Net.Http.Json;
+using EBanking.API.DTO.TransactionDtos;
 
-namespace EBanking.Console.HttpClients
+namespace EBanking.Services.HttpClients
 {
     public interface ITransactionHttpClient
     {
-        Task<IEnumerable<Transaction>?> GetAsync();
-        Task<Transaction?> GetAsync(int id);
-        Task<Transaction?> PostAsync(decimal amount, string fromAccountNumber, string toAccountNumber);
+        Task<IEnumerable<TransactionDto>?> GetAsync();
+        Task<TransactionDto?> GetAsync(int id);
+        Task<TransactionDto?> PostAsync(decimal amount, string fromAccountNumber, string toAccountNumber);
     }
 
     public class TransactionHttpClient : ITransactionHttpClient
@@ -23,20 +22,20 @@ namespace EBanking.Console.HttpClients
             this.httpClient = httpClient;
             url = manager.GetConfigParam(ConfigParamKeys.URL_TRANSACTION);
         }
-        public async Task<Transaction?> PostAsync(decimal amount, string fromAccountNumber, string toAccountNumber)
+        public async Task<TransactionDto?> PostAsync(decimal amount, string fromAccountNumber, string toAccountNumber)
         {
             var response = await httpClient.PostAsJsonAsync(url, new TransactionDto() { Amount = amount, FromAccountNumber = fromAccountNumber, ToAccountNumber = toAccountNumber });
-            return await HelperMethods.GetEntityFromHttpResponse<Transaction>(response);
+            return await HelperMethods.GetEntityFromHttpResponse<TransactionDto>(response);
         }
-        public async Task<Transaction?> GetAsync(int id)
+        public async Task<TransactionDto?> GetAsync(int id)
         {
             var response = await httpClient.GetAsync($"{url}/{id}");
-            return await HelperMethods.GetEntityFromHttpResponse<Transaction>(response);
+            return await HelperMethods.GetEntityFromHttpResponse<TransactionDto>(response);
         }
-        public async Task<IEnumerable<Transaction>?> GetAsync()
+        public async Task<IEnumerable<TransactionDto>?> GetAsync()
         {
             var response = await httpClient.GetAsync(url);
-            return await HelperMethods.GetEntitiesFromHttpResponse<Transaction>(response);
+            return await HelperMethods.GetEntitiesFromHttpResponse<TransactionDto>(response);
         }
     }
 }

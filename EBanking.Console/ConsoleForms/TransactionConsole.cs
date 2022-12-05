@@ -1,14 +1,15 @@
 ﻿using ConsoleTableExt;
-using EBanking.Console.HttpClients;
+using EBanking.Services.Interfaces;
 
 namespace EBanking.AppControllers
 {
     public class TransactionConsole
     {
-        private readonly ITransactionHttpClient transactionHttpClient;
-        public TransactionConsole(ITransactionHttpClient transactionHttpClient)
+        private readonly ITransactionService transactionService;
+
+        public TransactionConsole(ITransactionService transactionService)
         {
-            this.transactionHttpClient = transactionHttpClient;
+            this.transactionService = transactionService;
         }
         public async Task Start()
         {
@@ -67,17 +68,9 @@ namespace EBanking.AppControllers
                                         exitRequested = true;
                                         break;
                                     }
+
+
                                     break;
-                                    /*
-                                    if (fromAccountNumber.Length == 13)
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        System.Console.WriteLine("Грешка приликом уноса. Покушајте поново.");
-                                    }
-                                    */
                                 }
 
                                 if (exitRequested == true)
@@ -94,23 +87,15 @@ namespace EBanking.AppControllers
                                         exitRequested = true;
                                         break;
                                     }
+
+
                                     break;
-                                    /*
-                                    if (toAccountNumber.Length == 13)
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        System.Console.WriteLine("Грешка приликом уноса. Покушајте поново.");
-                                    }
-                                    */
                                 }
 
                                 if (exitRequested == true)
                                     break;
 
-                                var transaction = await transactionHttpClient.PostAsync(amount, fromAccountNumber, toAccountNumber);
+                                var transaction = await transactionService.AddTransactionAsync(amount, fromAccountNumber, toAccountNumber);
 
                                 System.Console.WriteLine($"Додата нова трансакција: '{transaction}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
@@ -145,7 +130,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var transaction = await transactionHttpClient.GetAsync(transactionID);
+                                var transaction = await transactionService.GetTransactionAsync(transactionID);
 
                                 System.Console.WriteLine($"Трансакција: '{transaction}'. (притисните било који тастер за наставак)");
 
@@ -154,7 +139,7 @@ namespace EBanking.AppControllers
                             }
                         case "3":
                             {
-                                var transactions = (await transactionHttpClient.GetAsync())?.ToList();
+                                var transactions = (await transactionService.GetAllTransactionsAsync())?.ToList();
 
                                 //var tableRawData = transactions.Select(x => new
                                 //{

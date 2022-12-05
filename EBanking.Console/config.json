@@ -1,4 +1,5 @@
 {
+  "ConnectionString": "Data Source=DESKTOP-A2R6AE6\\SQLEXPRESS;Initial Catalog=EBankingDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
   "url_user": "https://localhost:7118/api/User",
   "url_account": "https://localhost:7118/api/Account",
   "url_currency": "https://localhost:7118/api/Currency",

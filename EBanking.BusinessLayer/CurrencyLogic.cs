@@ -18,7 +18,7 @@ namespace EBanking.BusinessLayer
             var newCurrency = new Currency()
             {
                 Name = name,
-                CurrencyCode = code
+                Code = code
             };
             var resultInfo = new CurrencyValidator(newCurrency).Validate();
             if (resultInfo.IsValid == false)
@@ -101,7 +101,7 @@ namespace EBanking.BusinessLayer
                 if (currency == null)
                     throw new Exception($"Валута са идентификатором: '{currencyId}' није пронађена.");
                 currency.Name = name;
-                currency.CurrencyCode = code;
+                currency.Code = code;
 
                 var resultInfo = new CurrencyValidator(currency).Validate();
                 if (resultInfo.IsValid == false)

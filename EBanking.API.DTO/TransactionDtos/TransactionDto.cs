@@ -1,4 +1,4 @@
-﻿namespace EBanking.Models.ModelsDto
+﻿namespace EBanking.API.DTO.TransactionDtos
 {
     public class TransactionDto
     {

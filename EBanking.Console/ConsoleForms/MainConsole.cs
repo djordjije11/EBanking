@@ -33,7 +33,7 @@ namespace EBanking.AppControllers
                             }
                         case "2":
                             {
-                                await ServiceProvider.GetRequiredService<AccountConsole>().Start();
+                                //ait ServiceProvider.GetRequiredService<AccountConsole>().Start();
                                 break;
                             }
                         case "3":
@@ -43,7 +43,7 @@ namespace EBanking.AppControllers
                             }
                         case "4":
                             {
-                                await ServiceProvider.GetRequiredService<CurrencyConsole>().Start();
+                                //await ServiceProvider.GetRequiredService<CurrencyConsole>().Start();
                                 break;
                             }
                         //case "5":

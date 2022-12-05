@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager.Interfaces\EBanking.ConfigurationManager.Interfaces.csproj" />
     <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
   </ItemGroup>
 

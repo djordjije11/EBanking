@@ -9,15 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="ConsoleTableExt" Version="3.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ConfigurationManager.Interfaces\EBanking.ConfigurationManager.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.API.DTO\EBanking.API.DTO.csproj" />
+    <ProjectReference Include="..\EBanking.BusinessLayer\EBanking.BusinessLayer.csproj" />
+    <ProjectReference Include="..\EBanking.Console.Services.Interfaces\EBanking.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\EBanking.Console.Services\EBanking.Services.csproj" />
+    <ProjectReference Include="..\EBanking.DataAccessLayer.Interfaces\EBanking.DataAccessLayer.Interfaces.csproj" />
     <ProjectReference Include="..\EBanking.Models\EBanking.Models.csproj" />
+    <ProjectReference Include="..\SqlDataAccesss\SqlDataAccesss.csproj" />
   </ItemGroup>
 
 </Project>

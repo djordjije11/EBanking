@@ -56,7 +56,7 @@ namespace EBanking.API.Controllers
         {
             try
             {
-                var createdCurrency = await CurrencyLogic.AddCurrencyAsync(currency.Name, currency.CurrencyCode);
+                var createdCurrency = await CurrencyLogic.AddCurrencyAsync(currency.Name, currency.Code);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 return Created(new Uri(Request.GetEncodedUrl() + "/" + createdCurrency.Id), createdCurrency);
@@ -92,7 +92,7 @@ namespace EBanking.API.Controllers
                 return BadRequest();
             try
             {
-                var updatedCurrency = await CurrencyLogic.UpdateCurrencyAsync(id, currency.Name, currency.CurrencyCode);
+                var updatedCurrency = await CurrencyLogic.UpdateCurrencyAsync(id, currency.Name, currency.Code);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 return Ok(updatedCurrency);

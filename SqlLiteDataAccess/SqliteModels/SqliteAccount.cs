@@ -35,7 +35,7 @@ namespace SqliteDataAccess.SqliteModels
                 {
                     Id = reader.GetInt32("currencyID"),
                     Name = reader.GetString("Name"),
-                    CurrencyCode = reader.GetString("Code")
+                    Code = reader.GetString("Code")
                 }
             };
         }

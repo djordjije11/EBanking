@@ -1,15 +1,15 @@
 ﻿using ConsoleTableExt;
 using EBanking.Console.Common;
-using EBanking.Console.HttpClients;
+using EBanking.Services.Interfaces;
 
 namespace EBanking.AppControllers
 {
     public class UserConsole
     {
-        private readonly IUserHttpClient userHttpClient;
-        public UserConsole(IUserHttpClient userHttpClient)
+        private readonly IUserService userService;
+        public UserConsole(IUserService userService)
         {
-            this.userHttpClient = userHttpClient;
+            this.userService = userService;
         }
         public async Task Start()
         {
@@ -42,9 +42,9 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                var user = await userHttpClient.PostAsync(firstName, lastName, email, password);
+                                var user = await userService.AddUserAsync(firstName, lastName, email, password);
 
-                                System.Console.WriteLine($"Додат нови корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Додат нови корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -77,9 +77,9 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var wantedUser = await userHttpClient.GetAsync(userID);
+                                var wantedUser = await userService.GetUserAsync(userID);
                                 
-                                System.Console.WriteLine(wantedUser?.SinglePrint());
+                                System.Console.WriteLine(wantedUser);
 
                                 System.Console.WriteLine("Унесите нову емаил адресу:");
                                 string email = System.Console.ReadLine() ?? "";
@@ -90,9 +90,9 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите нову вредност за шифру:");
                                 string newPassword = System.Console.ReadLine() ?? "";
 
-                                var updatedUser = await userHttpClient.PutAsync(userID, email, oldPassword, newPassword);
+                                var updatedUser = await userService.UpdateUserAsync(userID, email, oldPassword, newPassword);
 
-                                System.Console.WriteLine($"Ажуриран корисник: '{updatedUser?.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Ажуриран корисник: '{updatedUser}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
 
                                 break;
@@ -128,9 +128,9 @@ namespace EBanking.AppControllers
                                 System.Console.WriteLine("Унесите шифру:");
                                 var password = System.Console.ReadLine() ?? "";
 
-                                var user = await userHttpClient.DeleteAsync(userID, password);
+                                var user = await userService.DeleteUserAsync(userID, password);
 
-                                System.Console.WriteLine($"Обрисан корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Обрисан корисник: '{user}'. (притисните било који тастер за наставак)");
 
                                 System.Console.ReadKey();
                                 break;
@@ -163,15 +163,15 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
 
-                                var user = await userHttpClient.GetAsync(userID);
+                                var user = await userService.GetUserAsync(userID);
 
-                                System.Console.WriteLine($"Корисник: '{user?.SinglePrint()}'. (притисните било који тастер за наставак)");
+                                System.Console.WriteLine($"Корисник: '{user}'. (притисните било који тастер за наставак)");
                                 System.Console.ReadKey();
                                 break;
                             }
                         case "5":
                             {
-                                var users = (await userHttpClient.GetAsync())?.ToList();
+                                var users = (await userService.GetAllUsersAsync())?.ToList();
                                 
                                 ConsoleTableBuilder
                                     .From(users)
@@ -212,7 +212,7 @@ namespace EBanking.AppControllers
                                 if (exitRequested == true)
                                     break;
                                 
-                                var accounts = await userHttpClient.GetAccountsAsync(userID);
+                                var accounts = await userService.GetAccountsFromUserAsync(userID);
                                 
                                 if (accounts == null)
                                     throw new Exception($"Рачуни корисника са идентификатором {userID}  нису пронађени.");
@@ -221,10 +221,8 @@ namespace EBanking.AppControllers
                                 {
                                     Id = x.Id,
                                     Number = x.Number,
-                                    UserFirstName = x.User.FirstName,
-                                    UserLastName = x.User.LastName,
-                                    UserEmail = x.User.Email,
-                                    CurrencyName = x.Currency.Name,
+                                    UserID = x.UserID,
+                                    CurrencyCode = x.CurrencyCode,
                                     Balance = x.Balance,
                                     Status = x.Status.GetDisplayName()
                                 }).ToList();
@@ -232,7 +230,7 @@ namespace EBanking.AppControllers
                                 ConsoleTableBuilder
                                     .From(tableRawData)
                                     .WithTitle("РАЧУНИ ", ConsoleColor.Yellow, ConsoleColor.DarkGray)
-                                    .WithColumn("ИД", "Број рачуна", "Име", "Презиме", "ЕМаил", "Валута", "Износ", "Статус")
+                                    .WithColumn("ИД", "Број рачуна", "Корисник", "Валута", "Износ", "Статус")
                                     .ExportAndWriteLine();
                                 System.Console.WriteLine("Притисните било који тастер за наставак...");
                                 System.Console.ReadKey();

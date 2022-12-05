@@ -21,18 +21,18 @@ namespace SqliteDataAccess.SqliteModels
             {
                 Id = reader.GetInt32("Id"),
                 Name = reader.GetString("Name"),
-                CurrencyCode = reader.GetString("Code")
+                Code = reader.GetString("Code")
             };
         }
         public override void SetSqliteInsertCommand(SQLiteCommand command)
         {
             command.CommandText = $"insert into {GetTableName()}(Name, Code) output inserted.ID values (@name, @code)";
             command.Parameters.AddWithValue("@name", Currency.Name);
-            command.Parameters.AddWithValue("@code", Currency.CurrencyCode);
+            command.Parameters.AddWithValue("@code", Currency.Code);
         }
         public override void SetSqliteUpdateByIdCommand(SQLiteCommand command)
         {
-            command.CommandText = $"UPDATE {GetTableName()} SET Name = '{Currency.Name}', Code = '{Currency.CurrencyCode}' WHERE Id = {Currency.Id}";
+            command.CommandText = $"UPDATE {GetTableName()} SET Name = '{Currency.Name}', Code = '{Currency.Code}' WHERE Id = {Currency.Id}";
         }
         public override void SetSqliteDeleteByIdCommand(SQLiteCommand command)
         {

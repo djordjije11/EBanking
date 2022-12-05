@@ -1,10 +1,9 @@
 ﻿using EBanking.BusinessLayer.Interfaces;
-using EBanking.Models;
-using EBanking.Models.ModelsDto;
-using Microsoft.AspNetCore.Http;
+using EBanking.API.DTO.UserDtos;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using AutoMapper;
+using EBanking.API.DTO.AccountDtos;
 
 namespace EBanking.API.Controllers
 {
@@ -13,18 +12,33 @@ namespace EBanking.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserLogic UserLogic;
-        public UserController(IUserLogic userLogic)
+        private readonly IMapper Mapper;
+        public UserController(IUserLogic userLogic, IMapper mapper)
         {
             UserLogic = userLogic;
+            Mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<User>> GetAsync()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetUserDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAsync()
         {
-            return await UserLogic.GetAllUsersAsync();
+            try
+            {
+                var users = await UserLogic.GetAllUsersAsync();
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                return Ok(Mapper.Map<IEnumerable<GetUserDto>>(users));
+            }
+            catch(Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAsync(int id)
@@ -34,7 +48,7 @@ namespace EBanking.API.Controllers
                 var user = await UserLogic.FindUserAsync(id);
                 if (!ModelState.IsValid)
                     return BadRequest();
-                return Ok(user);
+                return Ok(Mapper.Map<GetUserDto>(user));
             }
             catch (Exception ex)
             {
@@ -42,7 +56,7 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpGet("{id}/Accounts")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Account>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetAccountDto>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAccountsAsync(int id)
@@ -52,7 +66,7 @@ namespace EBanking.API.Controllers
                 var accounts = await UserLogic.GetAccountsByUserAsync(id);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(accounts);
+                return Ok(Mapper.Map<IEnumerable<GetAccountDto>>(accounts));
             }
             catch (Exception ex)
             {
@@ -60,10 +74,9 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPost]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GetUserDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create(User user)
+        public async Task<IActionResult> Create([FromBody] AddUserDto user)
         {
             if (user == null)
                 return BadRequest(ModelState);
@@ -72,8 +85,7 @@ namespace EBanking.API.Controllers
                 var createdUser = await UserLogic.AddUserAsync(user.FirstName, user.LastName, user.Email, user.Password);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                //return Ok(createdUser);
-                return Created(new Uri(Request.GetEncodedUrl() + "/" + createdUser.Id), createdUser);
+                return Created(new Uri(Request.GetEncodedUrl() + "/" + createdUser.Id), Mapper.Map<GetUserDto>(createdUser));
             }
             catch (Exception ex)
             {
@@ -81,20 +93,18 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(int id, [FromBody] UserDto userDto)
+        public async Task<IActionResult> Delete(int id, [FromBody] DeleteUserDto user)
         {
-            /*
-            if (userDto == null)
+            if (user == null)
                 return BadRequest();
-            */
             try
             {
-                var deletedUser = await UserLogic.DeleteUserAsync(id, userDto.Password);
+                var deletedUser = await UserLogic.DeleteUserAsync(id, user.Password);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(deletedUser);
+                return Ok(Mapper.Map<GetUserDto>(deletedUser));
             }
             catch (Exception ex)
             {
@@ -102,41 +112,23 @@ namespace EBanking.API.Controllers
             }
         }
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update(int id, [FromBody] UserDto userDto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto user)
         {
-            if (userDto == null)
+            if (user == null)
                 return BadRequest();
             try
             {
-                var updatedUser = await UserLogic.UpdateUserAsync(id, userDto.Email, userDto.OldPassword, userDto.Password);
+                var updatedUser = await UserLogic.UpdateUserAsync(id, user.Email, user.OldPassword, user.NewPassword);
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-                return Ok(updatedUser);
+                return Ok(Mapper.Map<GetUserDto>(updatedUser));
             }
             catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-        /*
-        [HttpPut]
-        public async Task<IActionResult> Update(int id, string? firstname, string? lastname, string? oldPassword, string? newPassword)
-        {
-            System.Console.WriteLine(id.ToString(), firstname, lastname, oldPassword, newPassword);
-            try
-            {
-                var updatedUser = await UserLogic.UpdateUserAsync(id, firstname, lastname, oldPassword, newPassword);
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-                return Ok(updatedUser);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        */
     }
 }

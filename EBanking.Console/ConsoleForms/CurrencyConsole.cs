@@ -1,10 +1,10 @@
 ﻿using ConsoleTableExt;
-using EBanking.Console.HttpClients;
 
 namespace EBanking.AppControllers
 {
     public class CurrencyConsole
     {
+        /*
         private readonly ICurrencyHttpClient currencyHttpClient;
         public CurrencyConsole(ICurrencyHttpClient currencyHttpClient)
         {
@@ -195,5 +195,6 @@ namespace EBanking.AppControllers
             System.Console.WriteLine("0. Назад");
             System.Console.Write("Одаберите опцију: ");
         }
+        */
     }
 }

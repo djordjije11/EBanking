@@ -7,6 +7,9 @@ using EBanking.SqlDataAccess.SqlBrokers;
 using EBanking.SqlDataAccess.SqlConnectors;
 using EBanking.Models;
 using ILogger = EBanking.Models.ILogger;
+using EBanking.API.DTO.UserDtos;
+using EBanking.API.DTO.AccountDtos;
+using EBanking.API.DTO.TransactionDtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,9 @@ builder.Services.AddTransient<IAccountBroker, SqlAccountBroker>();
 builder.Services.AddTransient<ICurrencyBroker, SqlCurrencyBroker>();
 builder.Services.AddTransient<ITransactionBroker, SqlTransactionBroker>();
 builder.Services.AddSingleton<IConnector, SqlConnector>();
+builder.Services.AddAutoMapper(typeof(GetUserDto).Assembly);
+builder.Services.AddAutoMapper(typeof(GetAccountDto).Assembly);
+builder.Services.AddAutoMapper(typeof(TransactionDto).Assembly);
 
 var filePath = "config.sql.json";
 builder.Services.AddSingleton<IConfigurationManager>(_ =>

@@ -1,10 +1,10 @@
 ﻿using EBanking.ConfigurationManager.Interfaces;
-using EBanking.Console.Common;
-using EBanking.Models.ModelsDto;
 using EBanking.Models;
+using EBanking.Services.HttpClients.Helper;
 using System.Net.Http.Json;
+using EBanking.API.DTO.AccountDtos;
 
-namespace EBanking.Console.HttpClients
+namespace EBanking.Services.HttpClients
 {
     public interface IAccountHttpClient
     {

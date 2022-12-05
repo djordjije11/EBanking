@@ -38,7 +38,7 @@ namespace SqliteDataAccess.SqliteModels
                     {
                         Id = reader.GetInt32("faCurrencyId"),
                         Name = reader.GetString("fcName"),
-                        CurrencyCode = reader.GetString("fcCode")
+                        Code = reader.GetString("fcCode")
                     }
                 },
                 ToAccount = new Account()
@@ -59,7 +59,7 @@ namespace SqliteDataAccess.SqliteModels
                     {
                         Id = reader.GetInt32("taCurrencyId"),
                         Name = reader.GetString("tcName"),
-                        CurrencyCode = reader.GetString("tcCode")
+                        Code = reader.GetString("tcCode")
                     }
                 }
             };
