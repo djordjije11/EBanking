@@ -1,0 +1,43 @@
+﻿@using EBanking.Web.Models.Users
+@model UserCreateViewModel
+
+<h1>
+    Kreiranje korisnika
+</h1>
+
+@if (string.IsNullOrWhiteSpace(ViewBag.ErrorMessage) == false){
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly"></div> <!-- ovo valjda znaci da ce se napomene validacije prikazivati za svaki property pojedinacno -->
+    <div class="input-group">
+        <label asp-for="FirstName"></label>
+        <input class="form-control" asp-for="FirstName"/>
+        <span class="text-danger" asp-validation-for="FirstName"></span>
+    </div>
+    <div class="input-group">
+        <label asp-for="LastName"></label>
+        <input class="form-control" asp-for="LastName" />
+        <span class="text-danger" asp-validation-for="LastName"> </span>
+    </div>
+    <div class="input-group">
+        <label asp-for="Email"></label>
+        <input class="form-control" asp-for="Email" />
+        <span class="text-danger" asp-validation-for="Email"> </span>
+    </div>
+    <div class="input-group">
+        <label asp-for="Password"></label>
+        <input class="form-control" asp-for="Password" />
+        <span class="text-danger" asp-validation-for="Password"> </span>
+    </div>
+    <button type="submit">Sacuvaj korisnika</button>
+</form>
+
+    @section Scripts{
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
+        }
+    }
